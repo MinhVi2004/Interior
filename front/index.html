@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/website/logo_trongsuot.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VSport</title>
+</head>
+
+<body>
+  <script src="https://www.paypal.com/sdk/js?client-id=AZFnai4mjfzgr-c8-YagVc0mnCTlz6MmqfMHeq3wnGgLuoThV8_v7kLOLZnkINjk1CoMsLfM1rFHxF7I"></script>
+  <script>
+    window.fbAsyncInit = function () {
+      FB.init({
+        appId: '9993196520807950',
+        cookie: true,
+        xfbml: true,
+        version: 'v23.0'
+      });
+
+      FB.AppEvents.logPageView();
+
+    };
+
+    (function (d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) { return; }
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+  </script>
+  <script type="module" src="/src/main.jsx"></script>
+  <div id="root"></div>
+
+</body>
+
+</html>
