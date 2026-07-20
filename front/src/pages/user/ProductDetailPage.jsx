@@ -9,8 +9,6 @@ import RelatedCategoryProduct from './RelatedCategoryProduct';
 const ProductDetailPage = () => {
     const { sku } = useParams();
     const [product, setProduct] = useState(null);
-    const [selectedColorIndex, setSelectedColorIndex] = useState(0);
-    const [selectedSize, setSelectedSize] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [relatedProducts, setRelatedProducts] = useState([]);
     const navigate = useNavigate();
@@ -43,75 +41,59 @@ const ProductDetailPage = () => {
             </div>
         );
 
-    const hasVariants = product.variants && product.variants.length > 0;
-    const selectedVariant = hasVariants
-        ? product.variants[selectedColorIndex]
-        : null;
-
     const handleAddToCart = async () => {
-        const user = JSON.parse(sessionStorage.getItem('user'));
-        let cartQuantity =
-            JSON.parse(localStorage.getItem('cartQuantity')) || 0;
+    const user = JSON.parse(sessionStorage.getItem("user"));
 
-        if (hasVariants && !selectedSize) {
-            return toast.error('Vui lòng chọn kích thước!');
-        }
+    const cartItem = {
+        productId: product.id,
+        quantity: quantity
+    };
 
-        const cartItem = {
-            product: {
-                id: product.id,
-                name: product.name,
-                images: product.images,
-            },
-            variant: selectedVariant
-                ? {
-                      id: selectedVariant.id,
-                      color: selectedVariant.color,
-                      image: selectedVariant.image,
-                  }
-                : null,
-            size: selectedSize ? selectedSize.size : 'default',
-            quantity,
-            price: selectedSize ? selectedSize.price : product.price,
-        };
+    try {
+        if (user) {
+            await axiosInstance.post("/api/cart", cartItem);
+        } else {
+            const localCart =
+                JSON.parse(localStorage.getItem("cart")) || [];
 
-        try {
-            if (user && user.id) {
-                await axiosInstance.post('/api/cart', cartItem);
-                toast.success('Đã thêm vào giỏ hàng');
+            const existing = localCart.find(
+                item => item.product.id === product.id
+            );
+
+            if (existing) {
+                existing.quantity += quantity;
             } else {
-                const localCart =
-                    JSON.parse(localStorage.getItem('cart')) || [];
-                const existingIndex = localCart.findIndex(
-                    item =>
-                        item.product.id === cartItem.product.id &&
-                        item.size === cartItem.size &&
-                        (cartItem.variant
-                            ? item.variant?.id === cartItem.variant.id
-                            : !item.variant)
-                );
-
-                if (existingIndex !== -1) {
-                    localCart[existingIndex].quantity += cartItem.quantity;
-                } else {
-                    localCart.push(cartItem);
-                }
-
-                localStorage.setItem('cart', JSON.stringify(localCart));
-                toast.success('Đã thêm vào giỏ hàng');
+                localCart.push({
+                    product: {
+                        id: product.id,
+                        name: product.name,
+                        image: product.images?.[0]?.url,
+                        price: product.price,
+                        sku: product.sku
+                    },
+                    quantity
+                });
             }
 
-            // Cập nhật cartQuantity và dispatch event để Header nhận
-            cartQuantity += quantity;
-            localStorage.setItem('cartQuantity', JSON.stringify(cartQuantity));
-
-            // Tạo custom event để Header lắng nghe
-            window.dispatchEvent(new Event('cartUpdated'));
-        } catch (err) {
-            console.error('Lỗi thêm vào giỏ hàng:', err);
-            toast.error('Thêm vào giỏ hàng thất bại');
+            localStorage.setItem("cart", JSON.stringify(localCart));
         }
-    };
+
+        const currentQuantity =
+            JSON.parse(localStorage.getItem("cartQuantity")) || 0;
+
+        localStorage.setItem(
+            "cartQuantity",
+            JSON.stringify(currentQuantity + quantity)
+        );
+
+        window.dispatchEvent(new Event("cartUpdated"));
+
+        toast.success("Đã thêm vào giỏ hàng");
+    } catch (err) {
+        console.error(err);
+        toast.error("Thêm vào giỏ hàng thất bại");
+    }
+};
 
     return (
     <div className="min-h-screen bg-[#f7f5f2]">
@@ -167,111 +149,6 @@ const ProductDetailPage = () => {
                         </span>
 
                     </div>
-
-
-
-                    {/* VARIANT */}
-                    {hasVariants && (
-
-                        <div>
-
-                            <h3 className="font-semibold text-gray-800 mb-3">
-                                Lựa chọn màu sắc
-                            </h3>
-
-
-                            <div className="flex gap-4 flex-wrap">
-
-                                {product.variants.map((variant,index)=>(
-
-                                    <button
-                                        key={variant.id}
-                                        onClick={()=>{
-                                            setSelectedColorIndex(index);
-                                            setSelectedSize(null);
-                                        }}
-                                        className={`
-                                        rounded-2xl border p-2 transition
-                                        ${
-                                            selectedColorIndex===index
-                                            ?
-                                            "border-[#8B5E3C] shadow-lg"
-                                            :
-                                            "border-gray-200"
-                                        }
-                                        `}
-                                    >
-
-                                        <img
-                                            src={variant.image}
-                                            className="w-20 h-20 object-cover rounded-xl"
-                                        />
-
-                                        <p className="text-sm mt-2">
-                                            {variant.color}
-                                        </p>
-
-
-                                    </button>
-
-                                ))}
-
-                            </div>
-
-                        </div>
-
-                    )}
-
-
-
-                    {/* SIZE */}
-
-                    {selectedVariant?.sizes?.length > 0 && (
-
-                        <div>
-
-                            <h3 className="font-semibold mb-3">
-                                Kích thước
-                            </h3>
-
-
-                            <div className="flex flex-wrap gap-3">
-
-                                {
-                                selectedVariant.sizes.map((s)=>(
-                                    
-                                    <button
-                                    key={s.id}
-                                    onClick={()=>setSelectedSize(s)}
-                                    className={`
-                                    px-5 py-3 rounded-xl border transition
-                                    
-                                    ${
-                                    selectedSize?.size===s.size
-                                    ?
-                                    "bg-[#8B5E3C] text-white border-[#8B5E3C]"
-                                    :
-                                    "bg-white hover:border-[#8B5E3C]"
-                                    }
-                                    `}
-                                    >
-
-                                    {s.size}
-
-                                    </button>
-
-                                ))
-                                }
-
-                            </div>
-
-
-                        </div>
-
-                    )}
-
-
-
                     {/* QUANTITY */}
 
                     <div className="flex items-center gap-5">

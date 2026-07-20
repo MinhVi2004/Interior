@@ -40,35 +40,56 @@ const SigninPage = () => {
     navigate(redirect);
   };
 
-  const mergeLocalCart = async token => {
-    const localCart = JSON.parse(localStorage.getItem('cart')) || [];
-    if (localCart.length > 0) {
-      try {
-        await axios.post(`${BACKEND_URL}/api/cart/merge`, { items: localCart }, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        localStorage.removeItem('cart');
-         // Xoá localStorage.cart
-      localStorage.removeItem('cart');
+  const mergeLocalCart = async (token) => {
+  const localCart = JSON.parse(localStorage.getItem("cart")) || [];
 
-      // Lấy lại cart từ server
-      const res = await axios.get(`${BACKEND_URL}/api/cart`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  if (!localCart.length) return;
 
-      const serverCart = res.data.items || [];
+  try {
+    const payload = {
+      items: localCart.map(item => ({
+        productId: item.product.id,
+        quantity: item.quantity
+      }))
+    };
 
-      // Tính cartQuantity
-      const cartQuantity = serverCart.reduce((sum, item) => sum + item.quantity, 0);
-      localStorage.setItem('cartQuantity', JSON.stringify(cartQuantity));
-
-      // Phát event để component khác update
-      window.dispatchEvent(new Event('cartUpdated'));
-      } catch (err) {
-        console.error('Lỗi khi đồng bộ giỏ hàng:', err);
+    await axios.post(
+      `${BACKEND_URL}/api/cart/merge`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    }
-  };
+    );
+
+    localStorage.removeItem("cart");
+
+    const res = await axios.get(
+      `${BACKEND_URL}/api/cart`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    const cartQuantity = (res.data.items || []).reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
+
+    localStorage.setItem(
+      "cartQuantity",
+      JSON.stringify(cartQuantity)
+    );
+
+    window.dispatchEvent(new Event("cartUpdated"));
+
+  } catch (err) {
+    console.error("Lỗi merge cart:", err);
+  }
+};
 
   const handleFacebookLogin = () => {
     window.FB.getLoginStatus(response => {

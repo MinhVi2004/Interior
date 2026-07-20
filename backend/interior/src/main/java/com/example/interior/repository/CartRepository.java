@@ -1,6 +1,7 @@
 package com.example.interior.repository;
 
 import com.example.interior.entity.Cart;
+import com.example.interior.entity.CartItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

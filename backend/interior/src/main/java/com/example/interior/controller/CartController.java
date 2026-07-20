@@ -2,15 +2,20 @@ package com.example.interior.controller;
 
 import com.example.interior.dto.CartDto;
 import com.example.interior.dto.CartItemDto;
+import com.example.interior.dto.ProductDto;
+import com.example.interior.dto.ProductImageDto;
+import com.example.interior.dto.request.MergeCartItemRequest;
+import com.example.interior.dto.request.MergeCartRequest;
+import com.example.interior.dto.request.UpdateCartItemRequest;
+import com.example.interior.dto.response.CartItemResponse;
 import com.example.interior.entity.Cart;
 import com.example.interior.entity.CartItem;
 import com.example.interior.entity.Product;
-import com.example.interior.entity.Variant;
 import com.example.interior.entity.User;
 import com.example.interior.repository.CartItemRepository;
 import com.example.interior.repository.CartRepository;
+import com.example.interior.repository.ProductImageRepository;
 import com.example.interior.repository.ProductRepository;
-import com.example.interior.repository.VariantRepository;
 import com.example.interior.service.support.CurrentUserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -33,15 +38,58 @@ public class CartController {
 	private final CartRepository cartRepository;
 	private final CartItemRepository cartItemRepository;
 	private final ProductRepository productRepository;
-	private final VariantRepository variantRepository;
 	private final CurrentUserService currentUserService;
+	private final ProductImageRepository productImageRepository;
 
-	public CartController(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository, VariantRepository variantRepository, CurrentUserService currentUserService) {
+	public CartController(CartRepository cartRepository, ProductImageRepository productImageRepository, CartItemRepository cartItemRepository, ProductRepository productRepository, CurrentUserService currentUserService) {
 		this.cartRepository = cartRepository;
+
+		this.productImageRepository = productImageRepository;
 		this.cartItemRepository = cartItemRepository;
 		this.productRepository = productRepository;
-		this.variantRepository = variantRepository;
 		this.currentUserService = currentUserService;
+	}
+
+	@PostMapping("/merge")
+	@Transactional
+	public CartDto mergeCart(
+			Authentication authentication,
+			@RequestBody MergeCartRequest request) {
+
+		User user = currentUserService.requireUser(authentication);
+
+		Cart cart = cartRepository.findByUserId(user.getId())
+				.orElseGet(() -> {
+					Cart newCart = new Cart();
+					newCart.setUser(user);
+					return cartRepository.save(newCart);
+				});
+
+		for (MergeCartItemRequest item : request.items()) {
+
+			Product product = productRepository.findById(item.productId())
+					.orElseThrow(() ->
+							new IllegalArgumentException("Product not found"));
+
+			CartItem cartItem = cartItemRepository
+					.findByCartIdAndProductId(cart.getId(), product.getId())
+					.orElse(null);
+
+			if (cartItem == null) {
+				cartItem = new CartItem();
+				cartItem.setCart(cart);
+				cartItem.setProduct(product);
+				cartItem.setQuantity(item.quantity());
+			} else {
+				cartItem.setQuantity(
+						cartItem.getQuantity() + item.quantity()
+				);
+			}
+
+			cartItemRepository.save(cartItem);
+		}
+
+		return toDto(cart);
 	}
 
 	@GetMapping
@@ -57,48 +105,62 @@ public class CartController {
 
 	@PostMapping
 	@Transactional
-	public CartDto addItem(Authentication authentication, @Valid @RequestBody CartItemDto dto) {
+	public CartDto addItem(Authentication authentication,
+	                       @Valid @RequestBody CartItemDto dto) {
+
 		User user = currentUserService.requireUser(authentication);
-		Cart cart = cartRepository.findByUserId(user.getId()).orElseGet(() -> {
-			Cart newCart = new Cart();
-			newCart.setUser(user);
-			return cartRepository.save(newCart);
-		});
-		CartItem cartItem = new CartItem();
-		cartItem.setCart(cart);
-		cartItem.setQuantity(dto.quantity());
-		cartItem.setSize(dto.size());
-		if (dto.productId() != null) {
-			Product product = productRepository.findById(dto.productId()).orElseThrow(() -> new IllegalArgumentException("Product not found: " + dto.productId()));
+
+		Cart cart = cartRepository.findByUserId(user.getId())
+				.orElseGet(() -> {
+					Cart newCart = new Cart();
+					newCart.setUser(user);
+					return cartRepository.save(newCart);
+				});
+
+		Product product = productRepository.findById(dto.productId())
+				.orElseThrow(() ->
+						new IllegalArgumentException("Product not found"));
+
+		CartItem cartItem = cartItemRepository
+				.findByCartIdAndProductId(cart.getId(), product.getId())
+				.orElse(null);
+
+		if (cartItem == null) {
+			cartItem = new CartItem();
+			cartItem.setCart(cart);
 			cartItem.setProduct(product);
+			cartItem.setQuantity(dto.quantity());
+		} else {
+			cartItem.setQuantity(
+					cartItem.getQuantity() + dto.quantity()
+			);
 		}
-		if (dto.variantId() != null) {
-			Variant variant = variantRepository.findById(dto.variantId()).orElseThrow(() -> new IllegalArgumentException("Variant not found: " + dto.variantId()));
-			cartItem.setVariant(variant);
-		}
+
 		cartItemRepository.save(cartItem);
+
 		return toDto(cart);
 	}
 
 	@PutMapping
 	@Transactional
-	public CartDto updateItem(Authentication authentication, @Valid @RequestBody CartItemDto dto) {
+	public CartDto updateItem(
+			Authentication authentication,
+			@RequestBody UpdateCartItemRequest request) {
+
 		User user = currentUserService.requireUser(authentication);
-		CartItem cartItem = cartItemRepository.findById(dto.id()).orElseThrow(() -> new IllegalArgumentException("Cart item not found: " + dto.id()));
+
+		CartItem cartItem = cartItemRepository.findById(request.itemId())
+				.orElseThrow(() ->
+						new IllegalArgumentException("Cart item not found"));
+
 		if (!cartItem.getCart().getUser().getId().equals(user.getId())) {
 			throw new IllegalArgumentException("Not your cart item");
 		}
-		cartItem.setQuantity(dto.quantity());
-		cartItem.setSize(dto.size());
-		if (dto.productId() != null) {
-			Product product = productRepository.findById(dto.productId()).orElseThrow(() -> new IllegalArgumentException("Product not found: " + dto.productId()));
-			cartItem.setProduct(product);
-		}
-		if (dto.variantId() != null) {
-			Variant variant = variantRepository.findById(dto.variantId()).orElseThrow(() -> new IllegalArgumentException("Variant not found: " + dto.variantId()));
-			cartItem.setVariant(variant);
-		}
+
+		cartItem.setQuantity(request.quantity());
+
 		cartItemRepository.save(cartItem);
+
 		return toDto(cartItem.getCart());
 	}
 
@@ -113,7 +175,55 @@ public class CartController {
 	}
 
 	private CartDto toDto(Cart cart) {
-		List<Long> itemIds = cartItemRepository.findByCartId(cart.getId()).stream().map(CartItem::getId).toList();
-		return new CartDto(cart.getId(), cart.getUser() == null ? null : cart.getUser().getId(), itemIds);
+
+		List<CartItemResponse> items =
+				cartItemRepository.findByCartId(cart.getId())
+						.stream()
+						.map(this::toCartItemResponse)
+						.toList();
+
+		return new CartDto(
+				cart.getId(),
+				cart.getUser() == null ? null : cart.getUser().getId(),
+				items
+		);
+	}
+	private CartItemResponse toCartItemResponse(CartItem item) {
+
+		Product product = item.getProduct();
+
+		List<ProductImageDto> images = productImageRepository
+				.findByProductId(product.getId())
+				.stream()
+				.map(image -> new ProductImageDto(
+						image.getId(),
+						image.getUrl(),
+						image.getPublicId(),
+						product.getId()
+				))
+				.toList();
+
+		String thumbnail = images.isEmpty()
+				? null
+				: images.get(0).url();
+
+		ProductDto productDto = new ProductDto(
+				product.getId(),
+				product.getSku(),
+				product.getName(),
+				product.getDescription(),
+				product.getPrice(),
+				product.getQuantity(),
+				product.getQrCodeUrl(),
+				product.getCategory() == null ? null : product.getCategory().getId(),
+				thumbnail,
+				product.getCreatedAt()
+		);
+
+		return new CartItemResponse(
+				item.getId(),
+				item.getQuantity(),
+				productDto
+		);
 	}
 }

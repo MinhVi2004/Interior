@@ -12,11 +12,10 @@ public record ProductDetailDto(
         String description,
         Double price,
         Integer quantity,
-        Boolean hasVariant,
         String qrCodeUrl,
         Long categoryId,
+        String thumbnail,
         List<ProductImageDto> images,
-        List<Long> variantId,
         LocalDateTime createdAt
 ) {
 }

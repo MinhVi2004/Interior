@@ -4,11 +4,9 @@ import com.example.interior.dto.OrderItemDto;
 import com.example.interior.entity.Order;
 import com.example.interior.entity.OrderItem;
 import com.example.interior.entity.Product;
-import com.example.interior.entity.Variant;
 import com.example.interior.repository.OrderItemRepository;
 import com.example.interior.repository.OrderRepository;
 import com.example.interior.repository.ProductRepository;
-import com.example.interior.repository.VariantRepository;
 import com.example.interior.service.OrderItemService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,13 +20,11 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final OrderItemRepository orderItemRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
-    private final VariantRepository variantRepository;
 
-    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, OrderRepository orderRepository, ProductRepository productRepository, VariantRepository variantRepository) {
+    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, OrderRepository orderRepository, ProductRepository productRepository) {
         this.orderItemRepository = orderItemRepository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
-        this.variantRepository = variantRepository;
     }
 
     @Override
@@ -60,7 +56,6 @@ public class OrderItemServiceImpl implements OrderItemService {
     private OrderItem toEntity(OrderItem orderItem, OrderItemDto dto) {
         orderItem.setQuantity(dto.quantity());
         orderItem.setPrice(dto.price());
-        orderItem.setSize(dto.size());
         if (dto.orderId() != null) {
             Order order = orderRepository.findById(dto.orderId()).orElseThrow(() -> new IllegalArgumentException("Order not found: " + dto.orderId()));
             orderItem.setOrder(order);
@@ -73,16 +68,10 @@ public class OrderItemServiceImpl implements OrderItemService {
         } else {
             orderItem.setProduct(null);
         }
-        if (dto.variantId() != null) {
-            Variant variant = variantRepository.findById(dto.variantId()).orElseThrow(() -> new IllegalArgumentException("Variant not found: " + dto.variantId()));
-            orderItem.setVariant(variant);
-        } else {
-            orderItem.setVariant(null);
-        }
         return orderItem;
     }
 
     private OrderItemDto toDto(OrderItem orderItem) {
-        return new OrderItemDto(orderItem.getId(), orderItem.getOrder() == null ? null : orderItem.getOrder().getId(), orderItem.getProduct() == null ? null : orderItem.getProduct().getId(), orderItem.getVariant() == null ? null : orderItem.getVariant().getId(), orderItem.getQuantity(), orderItem.getPrice(), orderItem.getSize());
+        return new OrderItemDto(orderItem.getId(), orderItem.getOrder() == null ? null : orderItem.getOrder().getId(), orderItem.getProduct() == null ? null : orderItem.getProduct().getId(),  orderItem.getQuantity(), orderItem.getPrice() );
     }
 }

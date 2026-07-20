@@ -31,8 +31,6 @@ public class Product extends BaseEntity {
 
     private Integer quantity;
 
-    private Boolean hasVariant = false;
-
     @Column(columnDefinition = "LONGTEXT")
     private String qrCodeUrl;
 
@@ -40,11 +38,11 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @Column(length = 1000)
+    private String thumbnail;
+
     @OneToMany(mappedBy = "product", cascade = jakarta.persistence.CascadeType.ALL)
     private List<ProductImage> images;
-
-    @OneToMany(mappedBy = "product")
-    private List<Variant> variants;
 
     private LocalDateTime createdAt;
 }

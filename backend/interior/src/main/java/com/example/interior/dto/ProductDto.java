@@ -10,11 +10,9 @@ public record ProductDto(
         String description,
         Double price,
         Integer quantity,
-        Boolean hasVariant,
         String qrCodeUrl,
         Long categoryId,
         String thumbnail,
-        List<Long> variantIds,
         LocalDateTime createdAt
 ) {
 }

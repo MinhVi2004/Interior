@@ -19,10 +19,5 @@ public class CartItem extends BaseEntity {
     @ManyToOne
     private Product product;
 
-    @ManyToOne
-    private Variant variant;
-
-    private String size;
-
     private Integer quantity;
 }

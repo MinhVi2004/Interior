@@ -19,12 +19,9 @@ public class OrderItem extends BaseEntity {
     @ManyToOne
     private Product product;
 
-    @ManyToOne
-    private Variant variant;
 
     private Integer quantity;
 
     private Double price;
 
-    private String size;
 }

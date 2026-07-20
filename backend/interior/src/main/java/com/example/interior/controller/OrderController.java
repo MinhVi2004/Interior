@@ -156,20 +156,21 @@ public class OrderController {
 		order.setAddress(address);
 		order.setPaymentMethod(com.example.interior.enums.PaymentMethod.valueOf(paymentMethod));
 		order.setStatus(com.example.interior.enums.OrderStatus.PENDING);
-		order.setTotalAmount(items.stream().mapToDouble(item -> {
-			Double price = item.getVariant() != null && item.getVariant().getSizes() != null && !item.getVariant().getSizes().isEmpty() ? item.getVariant().getSizes().get(0).getPrice() : item.getProduct().getPrice();
-			return (price == null ? 0.0 : price) * (item.getQuantity() == null ? 1 : item.getQuantity());
-		}).sum());
+		order.setTotalAmount(
+				items.stream()
+						.mapToDouble(item ->
+								item.getProduct().getPrice() * item.getQuantity())
+						.sum()
+		);
 		order = orderRepository.save(order);
 		for (CartItem cartItem : items) {
+
 			OrderItem orderItem = new OrderItem();
 			orderItem.setOrder(order);
 			orderItem.setProduct(cartItem.getProduct());
-			orderItem.setVariant(cartItem.getVariant());
 			orderItem.setQuantity(cartItem.getQuantity());
-			Double price = cartItem.getVariant() != null && cartItem.getVariant().getSizes() != null && !cartItem.getVariant().getSizes().isEmpty() ? cartItem.getVariant().getSizes().get(0).getPrice() : cartItem.getProduct().getPrice();
-			orderItem.setPrice(price);
-			orderItem.setSize(cartItem.getSize());
+			orderItem.setPrice(cartItem.getProduct().getPrice());
+
 			orderItemRepository.save(orderItem);
 		}
 		cartItemRepository.deleteAll(items);

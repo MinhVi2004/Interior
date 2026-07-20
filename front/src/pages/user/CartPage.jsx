@@ -7,8 +7,8 @@ import { toast } from 'react-toastify';
 
 const CartPage = () => {
     const [cart, setCart] = useState({
-    items: []
-});
+        items: []
+    });
     const [loadingItem, setLoadingItem] = useState(null); // track item đang update/remove
     const navigate = useNavigate();
     const isLoggedIn = !!sessionStorage.getItem('token');
@@ -47,6 +47,7 @@ const CartPage = () => {
 
         } catch (err) {
             console.error('Lỗi tải giỏ hàng', err);
+            toast.success('Lỗi tải giỏ hàng');
             setCart({ items: [] });
         }
 
@@ -61,44 +62,18 @@ const CartPage = () => {
     }
 };
 
-    const getItemId = item => {
-        const productId = item.product.id;
-        const size = getProductSize(item);
-        const variant = getProductColor(item); // dùng getProductColor
-        return isLoggedIn ? item.id : `${productId}-${variant}-${size}`;
-    };
+    const getItemId = item =>
+    isLoggedIn ? item.id : String(item.product.id);
 
     const getProductName = item => item.product?.name || item.name;
     const getProductImage = item =>
-        item.variant?.image || item.product?.images?.[0]?.url;
+    item.product?.images?.[0]?.url ||
+    item.product?.image ||
+    item.product?.thumbnail ||
+    "";
     // Lấy giá sản phẩm
-    const getProductPrice = item => {
-        // 1. Nếu có variant và size, và variant.sizes là mảng
-        if (item.variant && item.size && Array.isArray(item.variant.sizes)) {
-            const sizeObj = item.variant.sizes.find(s => s.size === item.size);
-            if (sizeObj && sizeObj.price != null) return sizeObj.price;
-        }
-
-        // 2. Nếu item có price trực tiếp (localStorage), dùng luôn
-        if (item.price != null) return item.price;
-
-        // 3. Fallback về product.price nếu có
-        return item.product?.price || 0;
-    };
-
-    // Lấy size sản phẩm
-    const getProductSize = item => {
-        if (!item.size) return 'default'; // nếu không có size
-        return typeof item.size === 'string'
-            ? item.size
-            : item.size?.size || 'default';
-    };
-
-    // Lấy màu sản phẩm
-    // Lấy màu sản phẩm, default 'default' nếu null
-    const getProductColor = item => {
-        return item.variant?.color || item.color || 'default';
-    };
+    const getProductPrice = item =>
+    item.product?.price ?? item.price ?? 0;
 
     const updateQuantity = async (itemId, newQty) => {
         setLoadingItem(itemId);
@@ -115,15 +90,11 @@ const CartPage = () => {
                 const res = await axiosInstance.get('/api/cart');
                 cartData = res.data.items || [];
             } else {
-                const [productId, color, size] = itemId.split('-');
-                cartData = cartData.map(item => {
-                    const match =
-                        item.product.id === productId &&
-                        getProductSize(item) === size &&
-                        getProductColor(item) === color;
-
-                    return match ? { ...item, quantity: newQty } : item;
-                });
+                cartData = cartData.map(item =>
+                    item.product.id === Number(itemId)
+                        ? { ...item, quantity: newQty }
+                        : item
+                );
 
                 // cập nhật localStorage cart
                 localStorage.setItem('cart', JSON.stringify(cartData));
@@ -136,6 +107,7 @@ const CartPage = () => {
             localStorage.setItem('cartQuantity', JSON.stringify(cartQuantity));
             window.dispatchEvent(new Event('cartUpdated'));
             fetchCart();
+            toast.success('Cập nhật số lượng thành công');
         } catch (err) {
             console.error(err);
             toast.error('Cập nhật số lượng thất bại');
@@ -167,14 +139,8 @@ const CartPage = () => {
                 const res = await axiosInstance.get('/api/cart');
                 cartData = res.data.items || [];
             } else {
-                const [productId, color, size] = itemId.split('-');
                 cartData = cartData.filter(
-                    item =>
-                        !(
-                            item.product.id === productId &&
-                            getProductSize(item) === size &&
-                            getProductColor(item) === color
-                        )
+                    item => item.product.id !== Number(itemId)
                 );
 
                 // cập nhật localStorage cart
@@ -188,6 +154,8 @@ const CartPage = () => {
             localStorage.setItem('cartQuantity', JSON.stringify(cartQuantity));
             window.dispatchEvent(new Event('cartUpdated'));
             fetchCart();
+            
+            toast.success('Xoá sản phẩm thành công');
         } catch (err) {
             console.error(err);
             toast.error('Xoá sản phẩm thất bại');
@@ -245,7 +213,7 @@ const CartPage = () => {
                             const price = getProductPrice(item);
                             const totalPrice = price * item.quantity;
                             const isLoading = loadingItem === itemId;
-
+                            const productSku = item.product?.sku;
 
                             return (
 
@@ -286,7 +254,7 @@ const CartPage = () => {
                                         cursor-pointer
                                         "
                                         onClick={() =>
-                                            navigate(`/product/${productId}`)
+                                            navigate(`/product/${productSku}`)
                                         }
                                     />
 
@@ -302,39 +270,11 @@ const CartPage = () => {
                                             hover:text-[#8b6f47]
                                             "
                                             onClick={() =>
-                                                navigate(`/product/${productId}`)
+                                                navigate(`/product/${productSku}`)
                                             }
                                         >
                                             {getProductName(item)}
                                         </h2>
-
-
-                                        {
-                                            (
-                                            getProductColor(item)!=="default"
-                                            ||
-                                            getProductSize(item)!=="default"
-                                            )
-                                            &&
-                                            <p className="
-                                            text-sm 
-                                            text-gray-500
-                                            mt-2
-                                            ">
-                                                {getProductColor(item)!=="default"
-                                                &&
-                                                getProductColor(item)
-                                                }
-
-                                                {
-                                                getProductSize(item)!=="default"
-                                                &&
-                                                ` - ${getProductSize(item)}`
-                                                }
-                                            </p>
-                                        }
-
-
                                         <p className="
                                         mt-2
                                         text-[#8b6f47]

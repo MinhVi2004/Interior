@@ -1,6 +1,7 @@
 package com.example.interior.service.impl;
 
 import com.example.interior.dto.ProductDto;
+import com.example.interior.dto.ProductImageDto;
 import com.example.interior.entity.Category;
 import com.example.interior.entity.Product;
 import com.example.interior.repository.CategoryRepository;
@@ -56,7 +57,6 @@ public class ProductServiceImpl extends EntityMapperSupport implements ProductSe
         product.setDescription(dto.description());
         product.setPrice(dto.price());
         product.setQuantity(dto.quantity());
-        product.setHasVariant(dto.hasVariant());
         product.setQrCodeUrl(dto.qrCodeUrl());
         if (dto.categoryId() != null) {
             Category category = categoryRepository.findById(dto.categoryId()).orElseThrow(() -> new IllegalArgumentException("Category not found: " + dto.categoryId()));
@@ -69,10 +69,16 @@ public class ProductServiceImpl extends EntityMapperSupport implements ProductSe
 
     private ProductDto toDto(Product product) {
 
-        String thumbnail = product.getImages() != null
-                && !product.getImages().isEmpty()
-                ? product.getImages().get(0).getUrl()
-                : null;
+        List<ProductImageDto> images = product.getImages() == null
+                ? List.of()
+                : product.getImages().stream()
+                .map(image -> new ProductImageDto(
+                        image.getId(),
+                        image.getUrl(),
+                        image.getPublicId(),
+                        product.getId()
+                ))
+                .toList();
 
         return new ProductDto(
                 product.getId(),
@@ -81,11 +87,9 @@ public class ProductServiceImpl extends EntityMapperSupport implements ProductSe
                 product.getDescription(),
                 product.getPrice(),
                 product.getQuantity(),
-                product.getHasVariant(),
                 product.getQrCodeUrl(),
                 product.getCategory() == null ? null : product.getCategory().getId(),
-                thumbnail,
-                idsOf(product.getVariants()),
+                product.getThumbnail(),
                 product.getCreatedAt()
         );
     }
