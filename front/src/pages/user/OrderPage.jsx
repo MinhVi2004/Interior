@@ -96,14 +96,14 @@ const MyOrderPage = () => {
         <div className="space-y-6">
           {filteredOrders.map(order => (
             <Link
-              to={`/order/${order._id}`}
-              key={order._id}
+              to={`/order/${order.id}`}
+              key={order.id}
               className="block rounded-xl border border-gray-200 shadow-md hover:shadow-lg transition-all bg-white overflow-hidden"
             >
               <div className="p-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Mã đơn hàng</p>
-                  <p className="text-md font-semibold text-gray-800">{order._id}</p>
+                  <p className="text-md font-semibold text-gray-800">{order.id}</p>
                   <p className="text-xs text-gray-400 mt-1">
                     {new Date(order.createdAt).toLocaleString()}
                   </p>

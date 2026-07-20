@@ -31,30 +31,41 @@ public class BannerController {
 
 	@GetMapping
 	public List<BannerDto> findAll() {
-		return bannerRepository.findAll().stream().map(banner -> new BannerDto(banner.getId(), banner.getImage(), banner.getPublicId())).toList();
+		return bannerRepository.findAll().stream().map(banner -> new BannerDto(banner.getId(), banner.getImage(), banner.getPublicId(), banner.getCreatedAt(), banner.getUpdatedAt())).toList();
 	}
 
 	@PostMapping
 	@PreAuthorize("hasRole('ADMIN')")
 	public BannerDto create(@RequestPart("image") MultipartFile image) {
-		var uploaded = cloudinaryService.upload(image, "banners");
+		var uploaded = cloudinaryService.upload(image, "InteriorBanners");
 		Banner banner = new Banner();
 		banner.setImage(uploaded.url());
 		banner.setPublicId(uploaded.publicId());
 		banner = bannerRepository.save(banner);
-		return new BannerDto(banner.getId(), banner.getImage(), banner.getPublicId());
+		return new BannerDto(banner.getId(), banner.getImage(), banner.getPublicId(), banner.getCreatedAt(), banner.getUpdatedAt());
 	}
 
 	@PutMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public BannerDto update(@PathVariable Long id, @RequestPart("image") MultipartFile image) {
 		Banner banner = bannerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Banner not found: " + id));
-		var uploaded = cloudinaryService.upload(image, "banners");
+		var uploaded = cloudinaryService.upload(image, "InteriorBanners");
 		cloudinaryService.delete(banner.getPublicId());
 		banner.setImage(uploaded.url());
 		banner.setPublicId(uploaded.publicId());
 		banner = bannerRepository.save(banner);
-		return new BannerDto(banner.getId(), banner.getImage(), banner.getPublicId());
+		return new BannerDto(banner.getId(), banner.getImage(), banner.getPublicId(), banner.getCreatedAt(), banner.getUpdatedAt());
+	}
+	@GetMapping("/{id}")
+	public BannerDto findById(@PathVariable Long id) {
+		return bannerRepository.findById(id)
+				.map(banner -> new BannerDto(
+						banner.getId(),
+						banner.getImage(),
+						banner.getPublicId(),
+						banner.getCreatedAt(),
+						banner.getUpdatedAt()))
+				.orElseThrow(() -> new IllegalArgumentException("Banner not found: " + id));
 	}
 
 	@DeleteMapping("/{id}")

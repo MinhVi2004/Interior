@@ -84,11 +84,11 @@ function App() {
                             <Route path="category/update/:id" element={<UpdateCategory />} />
 
                             <Route path="product" element={<Product />} />
-                            <Route path="product/:id" element={<ProductDetail />} />
+                            <Route path="product/:sku" element={<ProductDetail />} />
                             <Route path="product/add" element={<AddProduct />} />
-                            <Route path="product/update/:id" element={<UpdateProduct />}
+                            <Route path="product/update/:sku" element={<UpdateProduct />}
                             />
-                            <Route path="product/variant/:id" element={<AddVariant />} />
+                            <Route path="product/variant/:sku" element={<AddVariant />} />
 
                             <Route path="order" element={<Order />} />
                             <Route path="order/:id" element={<OrderDetail />} />
@@ -102,7 +102,7 @@ function App() {
                         <Route element={<UserLayout />}>
                             <Route index element={<HomePage />} />
                             <Route path="contact" element={<ContactPage />} />
-                            <Route path="product/:id" element={<ProductDetailPage />} />
+                            <Route path="product/:sku" element={<ProductDetailPage />} />
                             <Route path="cart" element={<CartPage />} />
                             <Route path="checkout" element={<CheckoutPage />} />
                             <Route path="order" element={<OrderPage />} />

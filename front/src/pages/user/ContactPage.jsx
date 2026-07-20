@@ -10,142 +10,516 @@ import {
   User,
   MessageCircle
 } from "lucide-react";
+
 const ContactPage = () => {
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: ""
   });
+
   const [isSending, setIsSending] = useState(false);
 
-  const isValid = formData.name && formData.email && formData.message;
+
+  const isValid =
+    formData.name &&
+    formData.email &&
+    formData.message;
+
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!isValid) {
       toast.warn("Vui lòng nhập đầy đủ thông tin.");
       return;
     }
 
+
     try {
+
       setIsSending(true);
+
       await axiosInstance.post("/api/email", formData);
-       toast.success("Gửi thành công! Cảm ơn bạnĐã liên hệ.");
-      setFormData({ name: "", email: "", message: "" });
-    } catch (err) {
-      toast.error("Gửi thất bại. Vui lòng thử lại.");
+
+      toast.success("Gửi liên hệ thành công!");
+
+      setFormData({
+        name:"",
+        email:"",
+        message:""
+      });
+
+
+    } catch(err){
+
+      toast.error(
+        "Gửi thất bại. Vui lòng thử lại."
+      );
+
     } finally {
+
       setIsSending(false);
+
     }
   };
 
+
   return (
-    <div className="max-w-5xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-bold mb-10 text-center text-blue-700">
-        Liên hệ với chúng tôi
-      </h1>
 
-      <div className="grid md:grid-cols-2 gap-12 bg-white p-8 rounded-xl shadow-lg">
-        {/* Thông tin liên hệ */}
-        <div className="space-y-5 text-gray-800">
-          <h2 className="text-2xl font-semibold mb-2">Thông tin liên hệ</h2>
-          <a
-  href="https://maps.app.goo.gl/NoMTMFnsjyMvvSsu8"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="flex items-center gap-2 hover:underline text-black-700"
->
-  <MapPin  className="w-8"/> Trường  đại học Sài Gòn, Quận 5, TP.HCM
-</a>
+    <div
+      className="
+      min-h-screen
+      bg-[#F5F1EB]
+      py-16
+      px-6
+      "
+    >
 
-          <a
-  href="https://zalo.me/0772912452"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="flex items-center gap-2 hover:underline text-black-700"
->
-  <img src="website/zalo.png" className="w-8"/> 0772 912 452
-</a>
-<a href="tel:0772912452" className="flex items-center gap-2 hover:underline text-black-700">
-  <Phone  className="w-8"/> 0772 912 452
-</a>
+      <div className="max-w-6xl mx-auto">
 
-          <a
-  href="mailto:dvmv2017@gmail.com"
-  className="flex items-center gap-2 hover:underline text-black-700"
->
-  <Mail className="w-8"/> dvmv2017@gmail.com
-</a>
-          <p className="flex items-center gap-2">
-            <Clock className="text-black-600 w-8" /> Thời gian: 8h - 18h (T2 - T7)
+
+        {/* TITLE */}
+
+        <div className="text-center mb-12">
+
+          <h1
+            className="
+            text-4xl
+            font-bold
+            text-[#1F2937]
+            "
+          >
+            Liên hệ với PDD Interior
+          </h1>
+
+
+          <p
+            className="
+            mt-3
+            text-gray-600
+            "
+          >
+            Hãy để chúng tôi giúp bạn tạo nên không gian sống hoàn hảo
           </p>
+
         </div>
 
-        {/* Form gửi ý kiến */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-2xl font-semibold text-blue-600 mb-2">Gửi ý kiến cho chúng tôi</h2>
+
+
+        <div
+          className="
+          grid
+          md:grid-cols-2
+          gap-10
+          bg-white
+          rounded-3xl
+          shadow-xl
+          p-8
+          md:p-12
+          "
+        >
+
+
+          {/* CONTACT INFO */}
+
 
           <div>
-            <label className="block text-sm font-medium text-gray-600">Tên của bạn</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
-              placeholder="Nguyễn Văn A"
-              required
-            />
+
+
+            <h2
+              className="
+              text-2xl
+              font-semibold
+              text-[#8B5E3C]
+              mb-8
+              "
+            >
+              Thông tin cửa hàng
+            </h2>
+
+
+
+            <div className="space-y-6">
+
+
+              <a
+                href="https://maps.app.goo.gl/NoMTMFnsjyMvvSsu8"
+                target="_blank"
+                rel="noreferrer"
+                className="
+                flex
+                gap-4
+                items-center
+                text-gray-700
+                hover:text-[#8B5E3C]
+                transition
+                "
+              >
+
+                <div
+                  className="
+                  w-12
+                  h-12
+                  rounded-full
+                  bg-[#F5F1EB]
+                  flex
+                  items-center
+                  justify-center
+                  "
+                >
+                  <MapPin
+                    className="text-[#8B5E3C]"
+                  />
+                </div>
+
+
+                <span>
+                  Trường Đại học Sài Gòn,
+                  Quận 5, TP.HCM
+                </span>
+
+              </a>
+
+
+
+              <a
+                href="tel:0772912452"
+                className="
+                flex
+                gap-4
+                items-center
+                text-gray-700
+                hover:text-[#8B5E3C]
+                "
+              >
+
+                <div
+                  className="
+                  w-12
+                  h-12
+                  rounded-full
+                  bg-[#F5F1EB]
+                  flex
+                  items-center
+                  justify-center
+                  "
+                >
+
+                  <Phone
+                    className="text-[#8B5E3C]"
+                  />
+
+                </div>
+
+
+                <span>
+                  0772 912 452
+                </span>
+
+              </a>
+
+
+
+              <a
+                href="mailto:dvmv2017@gmail.com"
+                className="
+                flex
+                gap-4
+                items-center
+                text-gray-700
+                hover:text-[#8B5E3C]
+                "
+              >
+
+                <div
+                  className="
+                  w-12
+                  h-12
+                  rounded-full
+                  bg-[#F5F1EB]
+                  flex
+                  items-center
+                  justify-center
+                  "
+                >
+
+                  <Mail
+                    className="text-[#8B5E3C]"
+                  />
+
+                </div>
+
+
+                <span>
+                  dvmv2017@gmail.com
+                </span>
+
+              </a>
+
+
+
+
+              <div
+                className="
+                flex
+                gap-4
+                items-center
+                text-gray-700
+                "
+              >
+
+                <div
+                  className="
+                  w-12
+                  h-12
+                  rounded-full
+                  bg-[#F5F1EB]
+                  flex
+                  items-center
+                  justify-center
+                  "
+                >
+
+                  <Clock
+                    className="text-[#8B5E3C]"
+                  />
+
+                </div>
+
+
+                <span>
+                  8:00 - 18:00 (Thứ 2 - Thứ 7)
+                </span>
+
+              </div>
+
+
+            </div>
+
+
+
+            {/* IMAGE DECOR */}
+
+            <div
+              className="
+              mt-10
+              rounded-2xl
+              overflow-hidden
+              "
+            >
+
+              <img
+                src="/website/logo_text.jpg"
+                alt="Interior"
+                className="
+                w-full
+                h-48
+                object-cover
+                "
+              />
+
+            </div>
+
+
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-600">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
-              placeholder="example@gmail.com"
-              required
-            />
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-600">Nội dung</label>
-            <textarea
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              className="mt-1 w-full border rounded-lg px-3 py-2 h-32 resize-none focus:ring-2 focus:ring-blue-400 outline-none"
-              placeholder="Nhập ý kiến của bạn..."
-              required
-            ></textarea>
-          </div>
 
-          <button
-            type="submit"
-            className={`w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition ${
-              !isValid || isSending ? 'opacity-60 cursor-not-allowed' : ''
-            }`}
-            disabled={!isValid || isSending}
+
+
+          {/* FORM */}
+
+
+          <form
+            onSubmit={handleSubmit}
+            className="
+            space-y-5
+            "
           >
-            {isSending ? " đang gửi..." : "Gửi ý kiến"}
-          </button>
 
-          {status && (
-            <p className="mt-2 text-sm text-center text-gray-600">
-              {status}
-            </p>
-          )}
-        </form>
+
+            <h2
+              className="
+              text-2xl
+              font-semibold
+              text-[#8B5E3C]
+              "
+            >
+              Gửi yêu cầu
+            </h2>
+
+
+
+            <div>
+
+              <label
+                className="
+                text-sm
+                text-gray-600
+                "
+              >
+                Họ và tên
+              </label>
+
+
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Nguyễn Văn A"
+                className="
+                mt-2
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-3
+                outline-none
+                focus:border-[#8B5E3C]
+                focus:ring-2
+                focus:ring-[#8B5E3C]/20
+                "
+              />
+
+            </div>
+
+
+
+            <div>
+
+              <label
+                className="
+                text-sm
+                text-gray-600
+                "
+              >
+                Email
+              </label>
+
+
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="example@gmail.com"
+                className="
+                mt-2
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-3
+                outline-none
+                focus:border-[#8B5E3C]
+                focus:ring-2
+                focus:ring-[#8B5E3C]/20
+                "
+              />
+
+            </div>
+
+
+
+            <div>
+
+              <label
+                className="
+                text-sm
+                text-gray-600
+                "
+              >
+                Nội dung
+              </label>
+
+
+              <textarea
+
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                placeholder="Nhập yêu cầu của bạn..."
+                className="
+                mt-2
+                w-full
+                h-36
+                resize-none
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-3
+                outline-none
+                focus:border-[#8B5E3C]
+                focus:ring-2
+                focus:ring-[#8B5E3C]/20
+                "
+
+              />
+
+            </div>
+
+
+
+            <button
+
+              disabled={!isValid || isSending}
+
+              className="
+              w-full
+              flex
+              items-center
+              justify-center
+              gap-2
+              bg-[#8B5E3C]
+              text-white
+              py-3
+              rounded-xl
+              font-semibold
+              hover:bg-[#70462d]
+              transition
+              disabled:opacity-50
+              "
+
+            >
+
+              <Send size={18}/>
+
+              {
+                isSending
+                ? "Đang gửi..."
+                : "Gửi liên hệ"
+              }
+
+            </button>
+
+
+
+          </form>
+
+
+        </div>
+
       </div>
+
+
     </div>
+
   );
 };
+
 
 export default ContactPage;

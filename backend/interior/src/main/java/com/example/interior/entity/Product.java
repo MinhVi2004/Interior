@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -44,4 +45,6 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "product")
     private List<Variant> variants;
+
+    private LocalDateTime createdAt;
 }

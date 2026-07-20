@@ -45,6 +45,7 @@ public class AuthService {
 		user.setType(LoginType.NORMAL);
 		user.setIsVerified(false);
 		user.setVerifyToken(UUID.randomUUID().toString());
+		System.out.print(user.getVerifyToken());
 		user = userRepository.save(user);
 		createCartIfMissing(user);
 		return new AuthResponse(jwtService.generateToken(user), UserResponseMapper.toPublic(user));
@@ -53,7 +54,7 @@ public class AuthService {
 	public AuthResponse signin(SigninRequest request) {
 		User user = requireUserByEmail(request.email());
 		if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-			throw new IllegalArgumentException("Invalid credentials");
+			throw new IllegalArgumentException("Sai tài khoản hoặc mật khẩu");
 		}
 		return new AuthResponse(jwtService.generateToken(user), UserResponseMapper.toPublic(user));
 	}

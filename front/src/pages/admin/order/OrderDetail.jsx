@@ -90,7 +90,7 @@ const OrderDetail = () => {
             {/* Thông tin đơn hàng */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base text-gray-700 mb-6">
                 <div>
-                    <strong>Mã đơn hàng:</strong> {order._id}
+                    <strong>Mã đơn hàng:</strong> {order.id}
                 </div>
                 <div>
                     <strong>Khách hàng:</strong> {order.user?.name || 'N/A'}
@@ -174,7 +174,7 @@ const OrderDetail = () => {
                             >
                                 <td className="px-3 py-2 text-center">
                                     <img
-                                        src={item.product?.images[0]?.url}
+                                        src={item.product?.thumbnail}
                                         alt={item.product?.name}
                                         className="w-14 h-14 object-cover rounded"
                                     />

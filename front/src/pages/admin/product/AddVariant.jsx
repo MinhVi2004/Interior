@@ -117,7 +117,7 @@ const AddVariant = () => {
             {product.variants.map((variant, index) => (
               <div key={index} className="bg-white border rounded p-4 shadow-sm relative">
                 <button
-                  onClick={() => handleDeleteVariant(variant._id)}
+                  onClick={() => handleDeleteVariant(variant.id)}
                   className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-sm"
                 >
                   Xoá
@@ -127,7 +127,7 @@ const AddVariant = () => {
                     setColor(variant.color);
                     setPreview(variant.image);
                     setSizes(variant.sizes);
-                    setEditingVariantId(variant._id);
+                    setEditingVariantId(variant.id);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className="absolute top-2 right-14 text-blue-500 hover:underline text-sm"

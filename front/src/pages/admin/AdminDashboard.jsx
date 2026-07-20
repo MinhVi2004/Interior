@@ -9,7 +9,14 @@ import {
     ResponsiveContainer,
     CartesianGrid,
 } from 'recharts';
-import { CheckCircle, XCircle } from 'lucide-react';
+import {
+    CheckCircle,
+    XCircle,
+    ShoppingCart,
+    CreditCard,
+    Wallet,
+    DollarSign,
+} from 'lucide-react';
 
 const AdminDashboard = () => {
     const [orders, setOrders] = useState([]);
@@ -99,146 +106,264 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="p-6 space-y-6">
-            <h1 className="text-2xl font-bold">Thống kê đơn hàng</h1>
+    <div className="min-h-screen bg-[#f7f5f2] p-6">
 
-            {/* Tổng quan */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Tổng đơn" value={stats.total} />
-                <StatCard
-                    title="Đã thanh toán"
-                    value={stats.paid}
-                    color="green"
-                />
-                <StatCard
-                    title="Chưa thanh toán"
-                    value={stats.unpaid}
-                    color="red"
-                />
-                <StatCard
-                    title="Tổng doanh thu"
-                    value={stats.revenue.toLocaleString()}
-                    prefix=" đ"
-                />
-            </div>
+        {/* Header */}
 
-            {/* Biểu đồ doanh thu */}
-            <div className="bg-white p-4 rounded-xl shadow">
-                <h2 className="text-lg font-semibold mb-2">
-                    Doanh thu theo tháng
-                </h2>
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={monthlyRevenue}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis tickFormatter={v => `${v / 1e6}tr`} />
-                        <Tooltip
-                            formatter={value => `${value.toLocaleString()} đ`}
-                        />
-                        <Bar
-                            dataKey="revenue"
-                            fill="#2563eb"
-                            radius={[4, 4, 0, 0]}
-                        />
-                    </BarChart>
-                </ResponsiveContainer>
-            </div>
+        <div className="mb-8">
+            <h1 className="text-3xl font-bold text-[#8B5E3C]">
+                Dashboard
+            </h1>
 
-            {/* Danh sách đơn hàng mới */}
-            <div className="bg-white p-4 rounded-xl shadow">
-                <h2 className="text-lg font-semibold mb-2">
-                    đơn hàng tuần này
-                </h2>
-
-                <div className="overflow-auto">
-                    <table className="w-full text-sm">
-                        <thead>
-    <tr className="border-b bg-gray-50 text-left">
-        <th className="p-2 text-left">Mã đơn</th>
-        <th className="p-2 text-center">Phương thức</th>
-        <th className="p-2 text-center">Ngày đặt</th>
-        <th className="p-2 text-center">Tổng tiền</th>
-        <th className="p-2 text-center">Thanh toán</th>
-        <th className="p-2 text-center">Trạng thái</th>
-    </tr>
-</thead>
-
-                        <tbody>
-                            {orders.map(order => (
-                                <tr
-                                    key={order._id}
-                                    className="border-b hover:bg-gray-50"
-                                >
-                                    <td className="p-2">
-                                        {order._id.toUpperCase()}
-                                    </td>
-                                    <td className="p-2 text-center">
-                                        {order.paymentMethod}
-                                    </td>
-                                    <td className="p-2 text-center">
-                                        {new Date(
-                                            order.createdAt
-                                        ).toLocaleString()}
-                                    </td>
-                                    <td className="p-2 text-center text-blue-600 font-semibold">
-                                        {order.totalAmount.toLocaleString()} đ
-                                    </td>
-                                    <td className="p-2 text-center align-middle">
-    {order.isPaid ? (
-        <span className="inline-flex items-center justify-center text-green-600 font-medium">
-            <CheckCircle className="w-4 h-4 mr-1" />
-           Đã thanh toán
-        </span>
-    ) : (
-        <span className="inline-flex items-center justify-center text-red-500 font-medium">
-            <XCircle className="w-4 h-4 mr-1" />
-            Chưa thanh toán
-        </span>
-    )}
-</td>
-
-                                    <td className="p-2 text-center">
-    <span className={getStatusBadge(order.status)}>
-        {order.status}
-    </span>
-</td>
-
-                                </tr>
-                            ))}
-                            {orders.length === 0 && (
-                                <tr>
-                                    <td
-                                        colSpan="5"
-                                        className="text-center py-4 text-gray-500"
-                                    >
-                                        Không có đơn hàng nào gần đây.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const StatCard = ({ title, value, color = 'blue', prefix = '' }) => {
-    const colorClass = {
-        blue: 'text-blue-600',
-        green: 'text-green-600',
-        red: 'text-red-600',
-    }[color];
-
-    return (
-        <div className="bg-white rounded-xl shadow p-4 text-center">
-            <h3 className="text-gray-500 text-sm">{title}</h3>
-            <p className={`text-2xl font-bold ${colorClass}`}>
-                {prefix}
-                {value}
+            <p className="text-gray-500 mt-2">
+                Tổng quan hoạt động cửa hàng nội thất
             </p>
         </div>
+
+        {/* Statistics */}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+            <StatCard
+                title="Tổng đơn hàng"
+                value={stats.total}
+                icon={<ShoppingCart size={28} />}
+                bg="bg-[#8B5E3C]/10"
+                color="text-[#8B5E3C]"
+            />
+
+            <StatCard
+                title="Đã thanh toán"
+                value={stats.paid}
+                icon={<CreditCard size={28} />}
+                bg="bg-green-100"
+                color="text-green-600"
+            />
+
+            <StatCard
+                title="Chưa thanh toán"
+                value={stats.unpaid}
+                icon={<Wallet size={28} />}
+                bg="bg-red-100"
+                color="text-red-600"
+            />
+
+            <StatCard
+                title="Doanh thu"
+                value={stats.revenue.toLocaleString()}
+                suffix=" đ"
+                icon={<DollarSign size={28} />}
+                bg="bg-[#8B5E3C]/10"
+                color="text-[#8B5E3C]"
+            />
+
+        </div>
+
+        {/* Chart */}
+
+        <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition mt-8 p-6">
+
+            <h2 className="text-xl font-semibold">
+                Doanh thu theo tháng
+            </h2>
+
+            <p className="text-gray-500 mb-6">
+                Doanh thu các đơn đã thanh toán
+            </p>
+
+            <ResponsiveContainer width="100%" height={350}>
+
+                <BarChart data={monthlyRevenue}>
+
+                    <CartesianGrid strokeDasharray="3 3" />
+
+                    <XAxis dataKey="name" />
+
+                    <YAxis tickFormatter={v => `${v / 1000000}tr`} />
+
+                    <Tooltip
+                        formatter={value => `${value.toLocaleString()} đ`}
+                    />
+
+                    <Bar
+                        dataKey="revenue"
+                        fill="#8B5E3C"
+                        radius={[8, 8, 0, 0]}
+                    />
+
+                </BarChart>
+
+            </ResponsiveContainer>
+
+        </div>
+
+        {/* Orders */}
+
+        <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition mt-8 p-6">
+
+            <div className="mb-6">
+
+                <h2 className="text-xl font-semibold">
+                    Đơn hàng tuần này
+                </h2>
+
+                <p className="text-gray-500">
+                    Các đơn hàng được tạo trong tuần
+                </p>
+
+            </div>
+
+            <div className="overflow-x-auto">
+
+                <table className="min-w-full">
+
+                    <thead>
+
+                        <tr className="bg-gray-50 border-b">
+
+                            <th className="px-4 py-4 text-left">
+                                Mã đơn
+                            </th>
+
+                            <th className="px-4 py-4 text-center">
+                                Thanh toán
+                            </th>
+
+                            <th className="px-4 py-4 text-center">
+                                Ngày đặt
+                            </th>
+
+                            <th className="px-4 py-4 text-center">
+                                Tổng tiền
+                            </th>
+
+                            <th className="px-4 py-4 text-center">
+                                Trạng thái
+                            </th>
+
+                            <th className="px-4 py-4 text-center">
+                                Payment
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {orders.map(order => (
+
+                            <tr
+                                key={order.id}
+                                className="border-b hover:bg-[#faf7f4] transition"
+                            >
+
+                                <td className="px-4 py-4 font-semibold text-[#8B5E3C]">
+                                    {order.id.toUpperCase()}
+                                </td>
+
+                                <td className="px-4 py-4 text-center">
+                                    {order.paymentMethod}
+                                </td>
+
+                                <td className="px-4 py-4 text-center">
+                                    {new Date(order.createdAt).toLocaleDateString()}
+                                </td>
+
+                                <td className="px-4 py-4 text-center font-semibold text-[#8B5E3C]">
+                                    {order.totalAmount.toLocaleString()} đ
+                                </td>
+
+                                <td className="px-4 py-4 text-center">
+
+                                    <span className={getStatusBadge(order.status)}>
+                                        {order.status}
+                                    </span>
+
+                                </td>
+
+                                <td className="px-4 py-4 text-center">
+
+                                    {order.isPaid ? (
+
+                                        <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+
+                                            <CheckCircle size={15} />
+
+                                            Đã thanh toán
+
+                                        </span>
+
+                                    ) : (
+
+                                        <span className="inline-flex items-center gap-1 bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">
+
+                                            <XCircle size={15} />
+
+                                            Chưa thanh toán
+
+                                        </span>
+
+                                    )}
+
+                                </td>
+
+                            </tr>
+
+                        ))}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+);
+};
+
+const StatCard = ({
+    title,
+    value,
+    icon,
+    bg,
+    color,
+    suffix = '',
+}) => {
+
+    return (
+
+        <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-6">
+
+            <div className="flex items-center justify-between">
+
+                <div>
+
+                    <p className="text-gray-500 text-sm">
+                        {title}
+                    </p>
+
+                    <h2 className={`text-3xl font-bold mt-2 ${color}`}>
+                        {value}
+                        {suffix}
+                    </h2>
+
+                </div>
+
+                <div className={`${bg} p-4 rounded-full ${color}`}>
+
+                    {icon}
+
+                </div>
+
+            </div>
+
+        </div>
+
     );
+
 };
 
 export default AdminDashboard;

@@ -13,6 +13,5 @@ import lombok.Setter;
 public class Banner extends BaseEntity {
 
     private String image;
-
     private String publicId;
 }

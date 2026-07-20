@@ -158,7 +158,7 @@ const AddressPage = () => {
 
     const handleEdit = async address => {
         setForm(address); // Gán trước để hiển thị dữ liệu cơ bản
-        setEditId(address._id);
+        setEditId(address.id);
         setIsEdit(true);
 
         // Fetch lại districts theo province
@@ -201,172 +201,422 @@ const AddressPage = () => {
     };
 
     return (
-        <div className="p-6 max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold mb-6">
-                Quản lý địa chỉ giao hàng
+    <div className="min-h-screen bg-[#f8f6f2] p-6">
+
+        <div className="max-w-6xl mx-auto">
+
+            <h2 className="text-3xl font-semibold text-[#3b3028] mb-8">
+                Địa chỉ giao hàng
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Danh sách địa chỉ */}
-                <div className="space-y-4">
-                    {addresses.length === 0 && (
-                        <p className="text-gray-500">Chưa có địa chỉ nào.</p>
-                    )}
-                    {addresses.map(address => (
-                        <div
-                            key={address._id}
-                            className="p-4 bg-gray-100 rounded shadow flex justify-between items-start"
-                        >
-                            <div>
-                                <p className="font-semibold">
-                                    {address.fullName} - {address.phoneNumber}
-                                </p>
-                                <p className="text-sm text-gray-700">{`${address.detail}, ${address.ward}, ${address.district}, ${address.province}`}</p>
-                                {address.isDefault && (
-                                    <span className="inline-block mt-1 text-green-600 text-xs">
-                                        [Mặc định]
-                                    </span>
-                                )}
-                            </div>
-                            <div className="space-x-2">
-                                <button
-                                    onClick={() => handleEdit(address)}
-                                    className="text-blue-600 hover:underline text-sm"
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(address._id)}
-                                    className="text-red-600 hover:underline text-sm"
-                                >
-                                    Xóa
-                                </button>
-                            </div>
+
+
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+
+                {/* Address List */}
+                <div className="lg:col-span-3 space-y-5">
+
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-xl font-medium text-[#3b3028]">
+                            Địa chỉ của bạn
+                        </h3>
+
+                        <span className="text-sm text-gray-500">
+                            {addresses.length} địa chỉ
+                        </span>
+                    </div>
+
+
+                    {addresses.length === 0 ? (
+
+                        <div className="bg-white rounded-xl p-8 text-center shadow-sm">
+                            <p className="text-gray-500">
+                                Chưa có địa chỉ giao hàng
+                            </p>
                         </div>
-                    ))}
+
+                    ) : (
+
+                        addresses.map(address => (
+
+                            <div
+                                key={address.id}
+                                className={`
+                                    bg-white rounded-xl p-5
+                                    border shadow-sm
+                                    transition
+                                    hover:shadow-md
+                                    ${
+                                        address.isDefault
+                                        ? "border-[#8b5e3c]"
+                                        : "border-gray-200"
+                                    }
+                                `}
+                            >
+
+                                <div className="flex justify-between">
+
+
+                                    <div className="space-y-2">
+
+                                        <div className="flex items-center gap-3">
+
+                                            <h4 className="font-semibold text-[#3b3028]">
+                                                {address.fullName}
+                                            </h4>
+
+
+                                            {address.isDefault && (
+
+                                                <span
+                                                    className="
+                                                    text-xs
+                                                    px-3 py-1
+                                                    rounded-full
+                                                    bg-[#efe3d4]
+                                                    text-[#8b5e3c]
+                                                    "
+                                                >
+                                                    Địa chỉ mặc định
+                                                </span>
+
+                                            )}
+
+                                        </div>
+
+
+                                        <p className="text-gray-600">
+                                            {address.phoneNumber}
+                                        </p>
+
+
+                                        <p className="text-gray-600 text-sm">
+                                            {address.detail},
+                                            {address.ward},
+                                            {address.district},
+                                            {address.province}
+                                        </p>
+
+                                    </div>
+
+
+
+                                    <div className="flex flex-col gap-2">
+
+                                        <button
+                                            onClick={() =>
+                                                handleEdit(address)
+                                            }
+                                            className="
+                                            px-4 py-2
+                                            rounded-lg
+                                            text-sm
+                                            bg-[#f5eee7]
+                                            text-[#8b5e3c]
+                                            hover:bg-[#ead8c4]
+                                            "
+                                        >
+                                            Chỉnh sửa
+                                        </button>
+
+
+                                        <button
+                                            onClick={() =>
+                                                handleDelete(address.id)
+                                            }
+                                            className="
+                                            px-4 py-2
+                                            rounded-lg
+                                            text-sm
+                                            bg-red-50
+                                            text-red-600
+                                            hover:bg-red-100
+                                            "
+                                        >
+                                            Xóa
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        ))
+
+                    )}
+
                 </div>
 
-                {/* Form địa chỉ */}
-                <form
-                    onSubmit={handleSubmit}
-                    className="bg-white p-6 rounded shadow space-y-4"
-                >
-                    <h3 className="text-lg font-medium">
-                        {isEdit ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới'}
-                    </h3>
-                    <input
-                        placeholder="Họ tên người nhận"
-                        className="w-full border p-2 rounded"
-                        value={form.fullName}
-                        onChange={e =>
-                            setForm({ ...form, fullName: e.target.value })
-                        }
-                        required
-                    />
-                    <input
-                        placeholder="Số điện thoại"
-                        className="w-full border p-2 rounded"
-                        value={form.phoneNumber}
-                        onChange={e =>
-                            setForm({ ...form, phoneNumber: e.target.value })
-                        }
-                        required
-                    />
-                    <div className="grid grid-cols-2 gap-4">
-                        <select
-                            className="border p-2 rounded"
-                            value={form.province}
-                            onChange={e =>
-                                setForm({ ...form, province: e.target.value })
+
+
+
+
+                {/* Form */}
+                <div className="lg:col-span-2">
+
+
+                    <form
+                        onSubmit={handleSubmit}
+                        className="
+                        bg-white
+                        rounded-xl
+                        shadow-sm
+                        p-6
+                        space-y-5
+                        "
+                    >
+
+
+                        <h3 className="
+                            text-xl
+                            font-semibold
+                            text-[#3b3028]
+                        ">
+                            {
+                                isEdit
+                                ? "Cập nhật địa chỉ"
+                                : "Thêm địa chỉ mới"
                             }
-                            required
-                        >
-                            <option value="">Chọn Tỉnh / Thành phố</option>
-                            {provinces.map(p => (
-                                <option key={p.code} value={p.name}>
-                                    {p.name}
-                                </option>
-                            ))}
-                        </select>
-                        <select
-                            className="border p-2 rounded"
-                            value={form.district}
-                            onChange={e =>
-                                setForm({ ...form, district: e.target.value })
-                            }
-                            disabled={!districts.length}
-                            required
-                        >
-                            <option value="">Chọn Quận / Huyện</option>
-                            {districts.map(d => (
-                                <option key={d.code} value={d.name}>
-                                    {d.name}
-                                </option>
-                            ))}
-                        </select>
-                        <select
-                            className="border p-2 rounded col-span-2"
-                            value={form.ward}
-                            onChange={e =>
-                                setForm({ ...form, ward: e.target.value })
-                            }
-                            disabled={!wards.length}
-                            required
-                        >
-                            <option value="">Chọn Phường / Xã</option>
-                            {wards.map(w => (
-                                <option key={w.code} value={w.name}>
-                                    {w.name}
-                                </option>
-                            ))}
-                        </select>
+                        </h3>
+
+
+
                         <input
-                            placeholder="Số nhà, tên đường"
-                            className="border p-2 rounded col-span-2"
-                            value={form.detail}
-                            onChange={e =>
-                                setForm({ ...form, detail: e.target.value })
-                            }
-                            required
-                        />
-                    </div>
-                    <label className="flex items-center gap-3 cursor-pointer select-none">
-                        <input
-                            type="checkbox"
-                            checked={form.isDefault}
+                            placeholder="Tên người nhận"
+                            className="
+                            w-full
+                            px-4 py-3
+                            border
+                            rounded-lg
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-[#c8a97e]
+                            "
+                            value={form.fullName}
                             onChange={e =>
                                 setForm({
                                     ...form,
-                                    isDefault: e.target.checked,
+                                    fullName:e.target.value
                                 })
                             }
-                            className="sr-only peer"
                         />
-                        <div className="w-5 h-5 rounded border border-gray-400 flex items-center justify-center peer-checked:bg-blue-600 peer-checked:border-blue-600 transition">
-                            <Check className="w-4 h-4 text-white peer-checked:block hidden" />
-                        </div>
-                        <span> đặt làm địa chỉ mặc định</span>
-                    </label>
-                    <div className="flex gap-2 justify-end">
-                        <button
-                            type="submit"
-                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                        >
-                            {isEdit ? 'Cập nhật' : 'Thêm địa chỉ'}
-                        </button>
-                        {isEdit && (
-                            <button
-                                type="button"
-                                onClick={resetForm}
-                                className="bg-gray-300 px-4 py-2 rounded"
+
+
+
+                        <input
+                            placeholder="Số điện thoại"
+                            className="
+                            w-full
+                            px-4 py-3
+                            border
+                            rounded-lg
+                            "
+                            value={form.phoneNumber}
+                            onChange={e =>
+                                setForm({
+                                    ...form,
+                                    phoneNumber:e.target.value
+                                })
+                            }
+                        />
+
+
+
+                        <div className="grid grid-cols-2 gap-3">
+
+
+                            <select
+                                className="border rounded-lg px-3 py-3"
+                                value={form.province}
+                                onChange={e =>
+                                    setForm({
+                                        ...form,
+                                        province:e.target.value
+                                    })
+                                }
                             >
-                                Hủy
+
+                                <option>
+                                    Tỉnh / Thành phố
+                                </option>
+
+                                {
+                                    provinces.map(p=>(
+                                        <option
+                                            key={p.code}
+                                            value={p.name}
+                                        >
+                                            {p.name}
+                                        </option>
+                                    ))
+                                }
+
+                            </select>
+
+
+
+                            <select
+                                className="border rounded-lg px-3 py-3"
+                                value={form.district}
+                                onChange={e =>
+                                    setForm({
+                                        ...form,
+                                        district:e.target.value
+                                    })
+                                }
+                            >
+
+                                <option>
+                                    Quận / Huyện
+                                </option>
+
+                                {
+                                    districts.map(d=>(
+                                        <option
+                                            key={d.code}
+                                            value={d.name}
+                                        >
+                                            {d.name}
+                                        </option>
+                                    ))
+                                }
+
+                            </select>
+
+
+
+                            <select
+                                className="
+                                col-span-2
+                                border
+                                rounded-lg
+                                px-3 py-3
+                                "
+                                value={form.ward}
+                                onChange={e =>
+                                    setForm({
+                                        ...form,
+                                        ward:e.target.value
+                                    })
+                                }
+                            >
+
+                                <option>
+                                    Phường / Xã
+                                </option>
+
+                                {
+                                    wards.map(w=>(
+                                        <option
+                                            key={w.code}
+                                            value={w.name}
+                                        >
+                                            {w.name}
+                                        </option>
+                                    ))
+                                }
+
+                            </select>
+
+
+
+                            <input
+                                placeholder="Số nhà, đường..."
+                                className="
+                                col-span-2
+                                border
+                                rounded-lg
+                                px-4 py-3
+                                "
+                                value={form.detail}
+                                onChange={e =>
+                                    setForm({
+                                        ...form,
+                                        detail:e.target.value
+                                    })
+                                }
+                            />
+
+                        </div>
+
+
+
+                        <label className="flex gap-3 items-center">
+
+                            <input
+                                type="checkbox"
+                                checked={form.isDefault}
+                                onChange={e =>
+                                    setForm({
+                                        ...form,
+                                        isDefault:e.target.checked
+                                    })
+                                }
+                                className="accent-[#8b5e3c]"
+                            />
+
+                            <span className="text-gray-700">
+                                Sử dụng làm địa chỉ mặc định
+                            </span>
+
+                        </label>
+
+
+
+                        <div className="flex justify-end gap-3">
+
+
+                            {
+                                isEdit && (
+                                    <button
+                                        type="button"
+                                        onClick={resetForm}
+                                        className="
+                                        px-5 py-3
+                                        rounded-lg
+                                        bg-gray-200
+                                        "
+                                    >
+                                        Hủy
+                                    </button>
+                                )
+                            }
+
+
+
+                            <button
+                                className="
+                                px-6 py-3
+                                rounded-lg
+                                bg-[#8b5e3c]
+                                text-white
+                                hover:bg-[#70482d]
+                                transition
+                                "
+                            >
+                                {
+                                    isEdit
+                                    ? "Lưu địa chỉ"
+                                    : "Thêm địa chỉ"
+                                }
                             </button>
-                        )}
-                    </div>
-                </form>
+
+
+                        </div>
+
+
+                    </form>
+
+                </div>
+
+
             </div>
+
         </div>
-    );
+
+    </div>
+);
 };
 
 export default AddressPage;

@@ -27,12 +27,12 @@ const POSMainPage = () => {
 
     const addToCart = product => {
         const existing = cartItems.find(
-            item => item.product._id === product._id
+            item => item.product.id === product.id
         );
         if (existing) {
             setCartItems(
                 cartItems.map(item =>
-                    item.product._id === product._id
+                    item.product.id === product.id
                         ? { ...item, quantity: item.quantity + 1 }
                         : item
                 )

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
+import { useGoogleLogin } from '@react-oauth/google';
+import { FcGoogle } from 'react-icons/fc';
+import { FaFacebook } from 'react-icons/fa';
 import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -99,150 +102,173 @@ const SignupPage = () => {
         }
     };
 
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-500 to-blue-500 px-4">
-            <div className="bg-white  shadow-xl overflow-hidden flex w-full max-w-4xl">
-                {/* Hình ảnh bên trái */}
-                <div className="hidden md:block w-[50%]">
-                    <img
-                        src="/website/signup_poster.png"
-                        alt="Signup Poster"
-                        className="h-full w-full object-contain"
-                    />
-                </div>
+   return (
+  <div className="h-screen bg-[#f7f5f2] flex items-center justify-center p-3 overflow-hidden">
+    <div className="w-full max-w-6xl h-[90vh] max-h-[820px] bg-white rounded-3xl shadow-2xl overflow-hidden grid lg:grid-cols-2">
 
-                {/* Form bên phải */}
-                <div className="w-full md:w-[50%] p-8 relative">
-                    <button
-                        type="button"
-                        onClick={() => navigate('/')}
-                        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold transition duration-200"
-                    >
-                        <X size={40} />
-                    </button>
-                    <h2 className="text-4xl font-bold mb-6 text-center text-gray-700 font-pattaya">
-                        đăng ký
-                    </h2>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label
-                                htmlFor="name"
-                                className="block font-medium text-gray-700"
-                            >
-                                Họ tên
-                            </label>
-                            <input
-                                type="text"
-                                name="name"
-                                className="mt-1 w-full border  px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Nhập họ tên"
-                                value={formData.name}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        {/* <div>
-              <label className="block font-medium text-gray-700 mb-1">
-                Giới tính
-              </label>
-              <div className="flex items-center gap-6">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="Nam"
-                    checked={formData.gender === "Nam"}
-                    onChange={handleChange}
-                    className="cursor-pointer appearance-none w-7 h-7 border-2 border-blue-500 checked:bg-blue-500 checked:border-blue-500 transition duration-200"
-                  />
-                  <span>Nam</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="Nữ"
-                    checked={formData.gender === "Nữ"}
-                    onChange={handleChange}
-                    className="cursor-pointer appearance-none w-7 h-7 border-2 border-pink-500 checked:bg-pink-500 checked:border-pink-500 transition duration-200"
-                  />
-                  <span>Nữ</span>
-                </label>
-              </div>
-            </div> */}
+      {/* LEFT */}
+      <div className="relative hidden lg:block">
+        <img
+          src="/website/signup.jpg"
+          className="w-full h-full object-cover"
+          alt=""
+        />
 
-                        <div>
-                            <label
-                                htmlFor="email"
-                                className="block font-medium text-gray-700"
-                            >
-                                Email
-                            </label>
-                            <input
-                                type="email"
-                                name="email"
-                                className="mt-1 w-full border  px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Nhập email"
-                                value={formData.email}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div>
-                            <label
-                                htmlFor="password"
-                                className="block font-medium text-gray-700"
-                            >
-                                Mật khẩu
-                            </label>
-                            <input
-                                type="password"
-                                name="password"
-                                className="mt-1 w-full border  px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Nhập mật khẩu"
-                                value={formData.password}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div>
-                            <label
-                                htmlFor="confirmPassword"
-                                className="block font-medium text-gray-700"
-                            >
-                                Xác nhận mật khẩu
-                            </label>
-                            <input
-                                type="password"
-                                name="confirmPassword"
-                                className="mt-1 w-full border  px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Xác nhận mật khẩu"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className={`w-full text-white font-semibold py-2 px-4 transition duration-200 ${
-                                loading
-                                    ? 'bg-gray-400 cursor-not-allowed'
-                                    : 'bg-blue-600 hover:bg-blue-700'
-                            }`}
-                        >
-                            {loading ? ' đang xử lý...' : ' đăng ký'}
-                        </button>
-                    </form>
-                    <p className="mt-4 text-center text-gray-600">
-                       Đã có tài khoản?{' '}
-                        <a
-                            href="/signin"
-                            className="text-blue-500 hover:underline"
-                        >
-                            đăng nhập
-                        </a>
-                    </p>
-                </div>
-            </div>
+        <div className="absolute inset-0 bg-black/45" />
+
+        <div className="absolute inset-0 flex flex-col justify-center px-10 text-white">
+          <h1 className="text-4xl font-bold leading-tight">
+            Create your
+            <br />
+            Dream Home
+          </h1>
+
+          <p className="mt-4 text-base leading-7 text-gray-200">
+            Đăng ký tài khoản để lưu sản phẩm yêu thích,
+            quản lý đơn hàng và nhận nhiều ưu đãi dành
+            riêng cho khách hàng.
+          </p>
         </div>
-    );
+      </div>
+
+      {/* RIGHT */}
+      <div className="relative p-7 lg:p-8 flex flex-col justify-center">
+
+        <button
+          onClick={() => navigate("/")}
+          className="absolute right-5 top-5 text-gray-500 hover:text-black"
+        >
+          <X size={24} />
+        </button>
+
+        <h2 className="text-3xl font-bold text-gray-800">
+          Đăng ký
+        </h2>
+
+        <p className="mt-1 text-sm text-gray-500">
+          Bắt đầu hành trình xây dựng ngôi nhà mơ ước
+        </p>
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-3 mt-5"
+        >
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Họ và tên
+            </label>
+
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Nguyễn Văn A"
+              className="mt-1 w-full h-11 rounded-xl border border-gray-300 px-4 outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="example@gmail.com"
+              className="mt-1 w-full h-11 rounded-xl border border-gray-300 px-4 outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Mật khẩu
+            </label>
+
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="********"
+              className="mt-1 w-full h-11 rounded-xl border border-gray-300 px-4 outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Xác nhận mật khẩu
+            </label>
+
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="********"
+              className="mt-1 w-full h-11 rounded-xl border border-gray-300 px-4 outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+            />
+          </div>
+
+
+          <button
+            disabled={loading}
+            className="w-full h-11 rounded-xl bg-[#8B5E3C] hover:bg-[#714b2f] text-white font-semibold transition"
+          >
+            {loading ? "Đang xử lý..." : "Tạo tài khoản"}
+          </button>
+        </form>
+
+        <div className="my-4 flex items-center">
+          <div className="flex-1 h-px bg-gray-300" />
+
+          <span className="mx-3 text-sm text-gray-400">
+            hoặc
+          </span>
+
+          <div className="flex-1 h-px bg-gray-300" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            className="h-11 border rounded-xl flex justify-center items-center gap-2 hover:bg-gray-50 transition"
+          >
+            <FcGoogle size={22} />
+            <span className="text-sm">Google</span>
+          </button>
+
+          <button
+            type="button"
+            className="h-11 border rounded-xl flex justify-center items-center gap-2 hover:bg-gray-50 transition"
+          >
+            <FaFacebook
+              size={22}
+              className="text-blue-600"
+            />
+            <span className="text-sm">Facebook</span>
+          </button>
+        </div>
+
+        <p className="text-center mt-4 text-sm text-gray-500">
+          Đã có tài khoản?
+
+          <a
+            href={`/signin?redirect=${redirect}`}
+            className="ml-2 text-[#8B5E3C] font-semibold hover:underline"
+          >
+            Đăng nhập ngay
+          </a>
+        </p>
+
+      </div>
+
+    </div>
+  </div>
+);
 };
 
 export default SignupPage;

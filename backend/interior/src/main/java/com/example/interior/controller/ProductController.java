@@ -1,10 +1,12 @@
 package com.example.interior.controller;
 
 import com.example.interior.dto.ProductDto;
+import com.example.interior.dto.ProductImageDto;
 import com.example.interior.dto.VariantDto;
 import com.example.interior.dto.VariantSizeDto;
 import com.example.interior.dto.request.ProductUpsertRequest;
 import com.example.interior.dto.request.VariantUpsertRequest;
+import com.example.interior.dto.response.ProductDetailDto;
 import com.example.interior.entity.Category;
 import com.example.interior.entity.Product;
 import com.example.interior.entity.ProductImage;
@@ -35,7 +37,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.text.Normalizer;
+import java.util.Locale;
 @RestController
 @RequestMapping("/api/product")
 public class ProductController {
@@ -57,7 +60,67 @@ public class ProductController {
 		this.cartItemRepository = cartItemRepository;
 		this.cloudinaryService = cloudinaryService;
 	}
+	private ProductDetailDto toDetailDto(Product product) {
 
+		List<ProductImageDto> images = productImageRepository
+				.findByProductId(product.getId())
+				.stream()
+				.map(image -> new ProductImageDto(
+						image.getId(),
+						image.getUrl(),
+						image.getPublicId(),
+						product.getId()
+				))
+				.toList();
+
+		List<Long> variantIds = variantRepository
+				.findByProductId(product.getId())
+				.stream()
+				.map(Variant::getId)
+				.toList();
+
+		return new ProductDetailDto(
+				product.getId(),
+				product.getSku(),
+				product.getName(),
+				product.getDescription(),
+				product.getPrice(),
+				product.getQuantity(),
+				product.getHasVariant(),
+				product.getQrCodeUrl(),
+				product.getCategory() == null ? null : product.getCategory().getId(),
+				images,
+				variantIds,
+				product.getCreatedAt()
+		);
+	}
+	@GetMapping("/sku/{sku}")
+	public ProductDetailDto findBySku(@PathVariable String sku) {
+		Product product = productRepository.findBySku(sku)
+				.orElseThrow(() -> new IllegalArgumentException("Product not found: " + sku));
+
+		return toDetailDto(product);
+	}
+	private String generateSku(String name) {
+
+		String base = Normalizer.normalize(name, Normalizer.Form.NFD)
+				.replaceAll("\\p{M}", "")
+				.replace("đ", "d")
+				.replace("Đ", "D")
+				.toUpperCase(Locale.ROOT)
+				.replaceAll("[^A-Z0-9]+", "-")
+				.replaceAll("(^-|-$)", "");
+
+		String sku = base;
+
+		int index = 1;
+
+		while (productRepository.existsBySku(sku)) {
+			sku = base + "-" + index++;
+		}
+
+		return sku;
+	}
 	@PostMapping
 	@PreAuthorize("hasRole('ADMIN')")
 	@Transactional
@@ -173,7 +236,9 @@ public class ProductController {
 	}
 
 	private void applyProductRequest(Product product, ProductUpsertRequest request) {
-		product.setSku(request.sku());
+		if (product.getSku() == null || product.getSku().isBlank()) {
+			product.setSku(generateSku(request.name()));
+		}
 		product.setName(request.name());
 		product.setDescription(request.description());
 		product.setPrice(request.price());
@@ -224,9 +289,32 @@ public class ProductController {
 	}
 
 	private ProductDto toDto(Product product) {
-		List<Long> imageIds = productImageRepository.findByProductId(product.getId()).stream().map(ProductImage::getId).toList();
-		List<Long> variantIds = variantRepository.findByProductId(product.getId()).stream().map(Variant::getId).toList();
-		return new ProductDto(product.getId(), product.getSku(), product.getName(), product.getDescription(), product.getPrice(), product.getQuantity(), product.getHasVariant(), product.getQrCodeUrl(), product.getCategory() == null ? null : product.getCategory().getId(), imageIds, variantIds);
+
+		String thumbnail = productImageRepository
+				.findFirstByProductIdOrderByIdAsc(product.getId())
+				.map(ProductImage::getUrl)
+				.orElse(null);
+
+		List<Long> variantIds = variantRepository
+				.findByProductId(product.getId())
+				.stream()
+				.map(Variant::getId)
+				.toList();
+
+		return new ProductDto(
+				product.getId(),
+				product.getSku(),
+				product.getName(),
+				product.getDescription(),
+				product.getPrice(),
+				product.getQuantity(),
+				product.getHasVariant(),
+				product.getQrCodeUrl(),
+				product.getCategory() == null ? null : product.getCategory().getId(),
+				thumbnail,
+				variantIds,
+				product.getCreatedAt()
+		);
 	}
 
 	private VariantDto toVariantDto(Variant variant) {

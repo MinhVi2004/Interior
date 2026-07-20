@@ -36,7 +36,7 @@ const UpdateProduct = () => {
                 setForm({
                     name,
                     description,
-                    category: category?._id || '',
+                    category: category?.id || '',
                     price,
                     quantity,
                 });
@@ -172,7 +172,7 @@ const UpdateProduct = () => {
                 >
                     <option value="">-- Chọn danh mục --</option>
                     {categories.map(cat => (
-                        <option key={cat._id} value={cat._id}>
+                        <option key={cat.id} value={cat.id}>
                             {cat.name}
                         </option>
                     ))}

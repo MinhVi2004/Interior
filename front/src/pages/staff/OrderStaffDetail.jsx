@@ -113,7 +113,7 @@ const OrderStaffDetail = () => {
             <div className="space-y-3 text-sm text-gray-700">
                 <div className="flex items-center gap-2 text-lg">
                     <FileText className="w-4 h-4 text-gray-500" />
-                    <strong className='text-lg'>Mã đơn:</strong> {order._id.toUpperCase()}
+                    <strong className='text-lg'>Mã đơn:</strong> {order.id.toUpperCase()}
                 </div>
                 <div className="flex items-center gap-2 text-lg">
                     <User className="w-4 h-4 text-gray-500" />

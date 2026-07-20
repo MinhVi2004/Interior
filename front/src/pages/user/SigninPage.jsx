@@ -37,11 +37,7 @@ const SigninPage = () => {
     sessionStorage.setItem('role', user.role);
 
     toast.success(' đăng nhập thành công!');
-    if (user.role === 'staff') {
-      navigate('/staff');
-    } else {
-      navigate(redirect);
-    }
+    navigate(redirect);
   };
 
   const mergeLocalCart = async token => {
@@ -98,7 +94,7 @@ const SigninPage = () => {
 
   const handleFacebookLoginToServer = async userInfo => {
     try {
-      const res = await axios.post(`${BACKEND_URL}/api/user/signinByFacebook`, {
+      const res = await axios.post(`${BACKEND_URL}/api/users/signinByFacebook`, {
         email: userInfo.email,
         name: userInfo.name,
       });
@@ -113,7 +109,7 @@ const SigninPage = () => {
 
   const handleGoogleLogin = async userLogin => {
     try {
-      const res = await axios.post(`${BACKEND_URL}/api/user/signinByGoogle`, {
+      const res = await axios.post(`${BACKEND_URL}/api/users/signinByGoogle`, {
         email: userLogin.email,
         name: userLogin.name,
       });
@@ -172,105 +168,173 @@ const SigninPage = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post(`${BACKEND_URL}/api/user/signin`, { email, password });
-      const { user, token } = res.data;
+      const res = await axios.post(`${BACKEND_URL}/api/users/signin`, { email, password });
+      const { user, accessToken } = res.data;
+      console.log("trả về signin" + res.data);
 
-      if (user.type === 'normal' && !user.isVerified) {
-        toast.error('Bạn phải kích hoạt Email để đăng nhập!');
-        return;
-      }
 
-      await mergeLocalCart(token);
-      handleRedirectAfterLogin(user, token);
-    } catch (error) {
-      toast.error(error.response?.data?.message || ' đăng nhập thất bại.');
+      await mergeLocalCart(accessToken);
+      handleRedirectAfterLogin(user, accessToken);
+    } catch (error) { 
+      toast.error(error.response?.data?.message || 'Đăng nhập thất bại.');
     }finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-500 to-blue-500 px-4">
-      <div className="bg-white shadow-xl overflow-hidden flex w-full max-w-4xl">
-        <div className="hidden md:block w-1/2">
-          <img src="/website/signup_poster.png" alt="Signup Poster" className="h-full w-full object-cover" />
-        </div>
+ return (
+  <div className="h-screen bg-[#f7f5f2] flex items-center justify-center p-3 overflow-hidden">
+    <div className="w-full max-w-6xl h-[90vh] max-h-[820px] bg-white rounded-3xl shadow-2xl overflow-hidden grid lg:grid-cols-2">
 
-        <div className="w-full md:w-1/2 p-8 relative">
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="absolute top-3 right-4 text-gray-500 hover:text-gray-700 transition"
-          >
-            <X size={36} />
-          </button>
+      {/* LEFT */}
+      <div className="relative hidden lg:block">
+        <img
+          src="/website/signin.jpg"
+          className="w-full h-full object-cover"
+          alt=""
+        />
 
-          <h2 className="text-4xl font-bold mb-6 text-center text-gray-700 font-pattaya"> đăng nhập</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                name="email"
-                className="mt-1 w-full border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="Nhập email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label className="block font-medium text-gray-700">Mật khẩu</label>
-              <input
-                type="password"
-                name="password"
-                className="mt-1 w-full border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="Nhập mật khẩu"
-                value={formData.password}
-                onChange={handleChange}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full text-white font-semibold py-2 px-4 ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
-            >
-              {loading ? ' đang xử lý...' : ' đăng nhập'}
-            </button>
-            <div className="text-right mt-2">
-              <button
-                type="button"
-                onClick={() => navigate('/forget-password')}
-                className="text-blue-500 hover:underline"
-              >
-                Quên mật khẩu?
-              </button>
-            </div>
-          </form>
+        <div className="absolute inset-0 bg-black/45" />
 
-          <div className="relative my-3">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-gray-500">hoặc</span>
-            </div>
-          </div>
+        <div className="absolute inset-0 flex flex-col justify-center px-10 text-white">
+          <h1 className="text-4xl font-bold leading-tight">
+            Welcome
+            <br />
+            Back
+          </h1>
 
-          <div className="flex gap-2 mt-1 justify-center">
-            <FcGoogle className="cursor-pointer border p-2 hover:bg-gray-100" size={50} onClick={login} />
-            <FaFacebook className="cursor-pointer border p-2 text-blue-500 hover:bg-gray-100" size={50} onClick={handleFacebookLogin} />
-          </div>
-
-          <p className="mt-4 text-center text-gray-600">
-            Chưa có tài khoản?{' '}
-            <a href={`/signup?redirect=${redirect}`} className="text-blue-500 hover:underline">
-              đăng ký
-            </a>
+          <p className="mt-4 text-base leading-7 text-gray-200">
+            Đăng nhập để quản lý đơn hàng,
+            lưu sản phẩm yêu thích và tiếp tục
+            mua sắm nội thất cho ngôi nhà của bạn.
           </p>
         </div>
       </div>
+
+      {/* RIGHT */}
+      <div className="relative p-7 lg:p-8 flex flex-col justify-center">
+
+        <button
+          onClick={() => navigate("/")}
+          className="absolute right-5 top-5 text-gray-500 hover:text-black"
+        >
+          <X size={24} />
+        </button>
+
+        <h2 className="text-3xl font-bold text-gray-800">
+          Đăng nhập
+        </h2>
+
+        <p className="mt-1 text-sm text-gray-500">
+          Chào mừng bạn quay trở lại
+        </p>
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-3 mt-5"
+        >
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="example@gmail.com"
+              className="mt-1 w-full h-11 rounded-xl border border-gray-300 px-4 outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Mật khẩu
+            </label>
+
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="********"
+              className="mt-1 w-full h-11 rounded-xl border border-gray-300 px-4 outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => navigate("/forget-password")}
+              className="text-sm text-[#8B5E3C] hover:underline"
+            >
+              Quên mật khẩu?
+            </button>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full h-11 rounded-xl bg-[#8B5E3C] hover:bg-[#714b2f] text-white font-semibold transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {loading ? "Đang xử lý..." : "Đăng nhập"}
+          </button>
+
+        </form>
+
+        <div className="my-4 flex items-center">
+          <div className="flex-1 h-px bg-gray-300" />
+
+          <span className="mx-3 text-sm text-gray-400">
+            hoặc
+          </span>
+
+          <div className="flex-1 h-px bg-gray-300" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+
+          <button
+            type="button"
+            onClick={login}
+            className="h-11 border rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50 transition"
+          >
+            <FcGoogle size={22} />
+            <span className="text-sm">Google</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleFacebookLogin}
+            className="h-11 border rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50 transition"
+          >
+            <FaFacebook
+              size={22}
+              className="text-blue-600"
+            />
+            <span className="text-sm">Facebook</span>
+          </button>
+
+        </div>
+
+        <p className="text-center mt-4 text-sm text-gray-500">
+          Chưa có tài khoản?
+
+          <a
+            href={`/signup?redirect=${redirect}`}
+            className="ml-2 text-[#8B5E3C] font-semibold hover:underline"
+          >
+            Đăng ký ngay
+          </a>
+        </p>
+
+      </div>
+
     </div>
-  );
+  </div>
+);
 };
 
 export default SigninPage;

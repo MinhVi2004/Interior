@@ -68,88 +68,290 @@ const ListCategory = () => {
   };
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto px-4 py-10">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Xu hướng tìm kiếm</h2>
+  <div className="w-full max-w-7xl mx-auto px-5 py-12">
 
-      <div className="relative">
-        {showButtons && (
+    <div className="mb-8">
+      <h2
+        className="
+        text-3xl
+        md:text-4xl
+        font-serif
+        font-bold
+        text-[#3b2f2f]
+        "
+      >
+        Khám phá bộ sưu tập
+      </h2>
+
+      <p className="
+        mt-2
+        text-gray-500
+        "
+      >
+        Lựa chọn phong cách nội thất phù hợp cho không gian của bạn
+      </p>
+    </div>
+
+
+
+    <div className="relative">
+
+
+      {
+        showButtons && (
           <button
             onClick={() => scroll("left")}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full hover:scale-105 transition"
+            className="
+            absolute
+            left-0
+            top-1/2
+            -translate-y-1/2
+            z-10
+            bg-white
+            shadow-lg
+            w-10
+            h-10
+            rounded-full
+            flex
+            items-center
+            justify-center
+            text-[#6b4f3f]
+            hover:bg-[#f5ede5]
+            transition
+            "
           >
-            <ChevronLeft size={22} />
+            <ChevronLeft size={22}/>
           </button>
-        )}
+        )
+      }
+
+
+
+      <div
+        ref={containerRef}
+        className="
+        overflow-x-auto
+        scroll-smooth
+        no-scrollbar
+        px-12
+        "
+      >
 
         <div
-          ref={containerRef}
-          className="overflow-x-auto px-10 no-scrollbar scroll-smooth "
+          className="
+          flex
+          gap-6
+          w-max
+          "
         >
-          <div className="flex gap-6 w-max transition-all">
-            {/* Danh mục tất cả */}
+
+
+
+          {/* ALL */}
+
+          <div
+            onClick={() => handleSelectCategory("")}
+            className={`
+              cursor-pointer
+              group
+              flex
+              flex-col
+              items-center
+              w-[120px]
+
+              ${
+                !selectedCategoryId
+                ?
+                "text-[#8b6f47]"
+                :
+                "text-gray-500"
+              }
+            `}
+          >
+
             <div
-              onClick={() => handleSelectCategory("")}
-              className={`cursor-pointer flex flex-col items-center min-w-[90px] 
-                ${!selectedCategoryId ? "text-blue-600 font-semibold" : "text-gray-600"} 
-                hover:text-blue-500 transition`}
+              className={`
+              w-28
+              h-28
+              rounded-2xl
+              flex
+              items-center
+              justify-center
+              shadow-sm
+              transition-all
+
+              ${
+                !selectedCategoryId
+                ?
+                "bg-[#f5ede5] border border-[#8b6f47]"
+                :
+                "bg-white border border-gray-100"
+              }
+
+              group-hover:shadow-lg
+              `}
             >
-              <div
-                className={`w-20 h-20 rounded-full border-2 
-                  flex items-center justify-center 
-                  text-blue-600 text-sm font-bold
-                  shadow-sm
-                  ${!selectedCategoryId ? "bg-blue-100 border-blue-500" : "bg-gray-100 border-transparent"} 
-                  hover:ring-2 hover:ring-blue-300 transition`}
+
+              <span
+                className="
+                font-serif
+                text-xl
+                font-bold
+                "
               >
-                All
-              </div>
-              <span className="mt-2 text-sm text-center">Tất cả</span>
+                ALL
+              </span>
+
             </div>
 
-            {/* Danh mục từng item */}
-            {trendingItems.map((item) => (
+
+            <span className="
+            mt-3
+            text-sm
+            font-medium
+            ">
+              Tất cả
+            </span>
+
+          </div>
+
+
+
+
+
+          {/* CATEGORY */}
+
+          {
+            trendingItems.map(item => (
+
               <div
-                key={item._id}
-                onClick={() => handleSelectCategory(item._id)}
-                className={`flex flex-col items-center cursor-pointer min-w-[90px] 
+                key={item.id}
+                onClick={() => handleSelectCategory(item.id)}
+                className={`
+                  cursor-pointer
+                  group
+                  flex
+                  flex-col
+                  items-center
+                  w-[120px]
+
                   ${
-                    selectedCategoryId === item._id
-                      ? "text-blue-600 font-semibold"
-                      : "text-gray-600"
-                  } hover:text-blue-500 transition`}
+                    selectedCategoryId == item.id
+                    ?
+                    "text-[#8b6f47]"
+                    :
+                    "text-gray-600"
+                  }
+
+                `}
               >
+
+
                 <div
-                  className={`w-20 h-20 rounded-full border-2 overflow-hidden 
-                    flex items-center justify-center shadow-sm bg-white
-                    ${
-                      selectedCategoryId === item._id
-                        ? "border-blue-500 ring-2 ring-blue-300"
-                        : "border-transparent"
-                    } hover:scale-105 transition`}
+                  className={`
+                  w-28
+                  h-28
+                  rounded-2xl
+                  bg-white
+                  border
+                  flex
+                  items-center
+                  justify-center
+                  overflow-hidden
+                  shadow-sm
+                  transition-all
+
+                  ${
+                    selectedCategoryId == item.id
+                    ?
+                    "border-[#8b6f47] ring-2 ring-[#e8d8c5]"
+                    :
+                    "border-gray-100"
+                  }
+
+                  group-hover:shadow-lg
+                  group-hover:-translate-y-1
+
+                  `}
                 >
+
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="object-contain h-16 w-16"
+                    className="
+                    w-20
+                    h-20
+                    object-cover
+                    rounded-xl
+                    "
                   />
+
                 </div>
-                <span className="mt-2 text-sm text-center">{item.name}</span>
+
+
+                <span
+                  className="
+                  mt-3
+                  text-sm
+                  text-center
+                  line-clamp-2
+                  font-medium
+                  "
+                >
+                  {item.name}
+                </span>
+
+
               </div>
-            ))}
-          </div>
+
+            ))
+          }
+
+
         </div>
 
-        {showButtons && (
+      </div>
+
+
+
+
+      {
+        showButtons && (
+
           <button
             onClick={() => scroll("right")}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full hover:scale-105 transition"
+            className="
+            absolute
+            right-0
+            top-1/2
+            -translate-y-1/2
+            z-10
+            bg-white
+            shadow-lg
+            w-10
+            h-10
+            rounded-full
+            flex
+            items-center
+            justify-center
+            text-[#6b4f3f]
+            hover:bg-[#f5ede5]
+            transition
+            "
           >
-            <ChevronRight size={22} />
+
+            <ChevronRight size={22}/>
+
           </button>
-        )}
-      </div>
+
+        )
+      }
+
+
     </div>
-  );
+
+  </div>
+);
 };
 
 export default ListCategory;

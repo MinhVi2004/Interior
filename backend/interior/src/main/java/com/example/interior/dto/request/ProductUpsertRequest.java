@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record ProductUpsertRequest(
-		@NotBlank String sku,
+		String sku,
 		String name,
 		String description,
 		Double price,

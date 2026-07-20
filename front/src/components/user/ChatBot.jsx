@@ -42,7 +42,7 @@ const Chatbot = () => {
 
   const normalizeProducts = (products = []) =>
     products.map((p) => ({
-      _id: p._id || p.id,
+      id: p.id || p.id,
       name: p.name,
       price: p.price,
       image: p.image,
@@ -111,8 +111,8 @@ const Chatbot = () => {
 
     return products.slice(0, 4).map((p) => (
       <a
-        key={p._id}
-        href={`/product/${p._id}`}
+        key={p.id}
+        href={`/product/${p.id}`}
         target="_blank"
         rel="noopener noreferrer"
         className="flex gap-3 bg-white border rounded-xl p-2 mb-2 hover:shadow-md transition"

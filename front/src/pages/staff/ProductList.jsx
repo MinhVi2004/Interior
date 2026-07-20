@@ -4,12 +4,12 @@ const ProductList = ({ products, addToCart }) => {
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
       {products.map((product) => (
         <div
-          key={product._id}
+          key={product.id}
           className="bg-white rounded-lg shadow hover:shadow-md transition p-3 flex flex-col"
         >
           <div className="aspect-square overflow-hidden rounded">
             <img
-              src={product.images[0]?.url}
+              src={product.thumbnail}
               alt={product.name}
               className="object-cover w-full h-full"
             />

@@ -11,7 +11,7 @@ const AdminRoute = () => {
     return <Navigate to="/signin" />;
   }
 
-  if (storedUser.role !== "admin") {
+  if (storedUser.role !== "ADMIN") {
     toast.error("Bạn không có quyền truy cập trang này.");
     // Không phải admin
     return <Navigate to="/" />;

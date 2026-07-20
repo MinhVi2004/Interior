@@ -185,7 +185,7 @@ const CheckoutPage = () => {
     const handleEdit = async address => {
         setFormVisible(true);
         setIsEdit(true);
-        setEditId(address._id);
+        setEditId(address.id);
         setForm(address); // Gán trước để hiển thị dữ liệu sẵn
 
         // đảm bảo provincesĐã có
@@ -265,8 +265,8 @@ const CheckoutPage = () => {
 
         try {
             const orderItems = cartItems.map(item => ({
-                product: item.product._id,
-                variant: item.variant?._id,
+                product: item.product.id,
+                variant: item.variant?.id,
                 size: item.size,
                 quantity: item.quantity,
                 price: item.product.price,
@@ -275,12 +275,12 @@ const CheckoutPage = () => {
             // Tạo đơn hàng trước
             const createOrderRes = await axiosInstance.post('/api/order', {
                 orderItems,
-                address: selectedAddress._id,
+                address: selectedAddress.id,
                 paymentMethod: paymentMethod,
                 totalAmount: totalPrice,
             });
             // console.log('createOrderRes', createOrderRes);
-            const orderId = createOrderRes.data._id;
+            const orderId = createOrderRes.data.id;
 
             if (paymentMethod === 'COD') {
                 toast.success(' đặt hàng thành công với phương thức COD!');
@@ -329,9 +329,9 @@ const CheckoutPage = () => {
                 <div className="space-y-4 mt-4">
                     {addresses.map(address => (
                         <div
-                            key={address._id}
+                            key={address.id}
                             className={`border rounded-sm p-4 cursor-pointer transition-all ${
-                                selectedAddress?._id === address._id
+                                selectedAddress?.id === address.id
                                     ? 'border-blue-600 bg-blue-50'
                                     : 'hover:shadow'
                             }`}
@@ -372,7 +372,7 @@ const CheckoutPage = () => {
                                 <button
                                     onClick={e => {
                                         e.stopPropagation();
-                                        handleDelete(address._id);
+                                        handleDelete(address.id);
                                     }}
                                     className="flex items-center gap-1 hover:underline text-red-500"
                                 >
@@ -578,7 +578,7 @@ const CheckoutPage = () => {
                                         src={
                                             item.variant
                                                 ? item.variant.image
-                                                : item.product.images[0]?.url
+                                                : item.product.thumbnail
                                         }
                                         alt={item.product.name}
                                         className="w-20 h-20 object-cover rounded-md"

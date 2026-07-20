@@ -54,8 +54,8 @@ const OrderTable = ({ orders }) => {
         </thead>
         <tbody>
           {orders.map((order) => (
-            <tr key={order._id} className="border-t hover:bg-gray-50" onClick={() => navigate(`/staff/order/${order._id}`)}>
-              <td className="px-4 py-3 font-medium text-gray-800">{order._id.toUpperCase()}</td>
+            <tr key={order.id} className="border-t hover:bg-gray-50" onClick={() => navigate(`/staff/order/${order.id}`)}>
+              <td className="px-4 py-3 font-medium text-gray-800">{order.id.toUpperCase()}</td>
               <td className="px-4 py-3">{order.user?.name || "N/A"}</td>
               <td className="px-4 py-3 text-green-600 font-medium">
                 {formatCurrency(order.totalAmount)}

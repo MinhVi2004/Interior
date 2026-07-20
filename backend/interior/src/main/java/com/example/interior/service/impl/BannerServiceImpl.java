@@ -51,6 +51,8 @@ public class BannerServiceImpl implements BannerService {
     }
 
     private BannerDto toDto(Banner banner) {
-        return new BannerDto(banner.getId(), banner.getImage(), banner.getPublicId());
+        return new BannerDto(banner.getId(), banner.getImage(), banner.getPublicId(),
+                banner.getCreatedAt(),
+                banner.getUpdatedAt());
     }
 }

@@ -1,9 +1,11 @@
-package com.example.interior.dto;
+package com.example.interior.dto.response;
+
+import com.example.interior.dto.ProductImageDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record ProductDto(
+public record ProductDetailDto(
         Long id,
         String sku,
         String name,
@@ -13,8 +15,8 @@ public record ProductDto(
         Boolean hasVariant,
         String qrCodeUrl,
         Long categoryId,
-        String thumbnail,
-        List<Long> variantIds,
+        List<ProductImageDto> images,
+        List<Long> variantId,
         LocalDateTime createdAt
 ) {
 }

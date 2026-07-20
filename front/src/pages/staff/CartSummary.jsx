@@ -7,7 +7,7 @@ const CartSummary = ({ cartItems, totalAmount }) => {
   if (cartItems.length === 0) return toast.error("Giỏ hàng trống!");
 
   const orderItems = cartItems.map((item) => ({
-    product: item.product._id,
+    product: item.product.id,
     quantity: item.quantity,
     price: item.price,
   }));

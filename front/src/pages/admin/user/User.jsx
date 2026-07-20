@@ -28,13 +28,13 @@ const User = () => {
           <tbody className="text-gray-700">
             {users.map((u, index) => (
               <tr
-                key={u._id}
+                key={u.id}
                 className="hover:bg-blue-50 transition duration-200 ease-in-out"
               >
                 <td className="px-5 py-3">{index + 1}</td>
                 <td className="px-5 py-3">
                   <Link
-                    to={`/admin/user/${u._id}`}
+                    to={`/admin/user/${u.id}`}
                     className="text-blue-600 hover:underline font-medium"
                   >
                     {u.name}

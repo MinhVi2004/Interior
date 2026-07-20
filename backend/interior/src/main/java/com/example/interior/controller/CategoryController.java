@@ -3,15 +3,10 @@ package com.example.interior.controller;
 import com.example.interior.dto.CategoryDto;
 import com.example.interior.repository.CategoryRepository;
 import com.example.interior.service.CategoryService;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,11 +16,9 @@ public class CategoryController {
 
 	private final CategoryService categoryService;
 
-	private final CategoryRepository categoryRepository;
 
-	public CategoryController(CategoryService categoryService, CategoryRepository categoryRepository) {
+	public CategoryController(CategoryService categoryService) {
 		this.categoryService = categoryService;
-		this.categoryRepository = categoryRepository;
 	}
 
 	@GetMapping
@@ -38,16 +31,23 @@ public class CategoryController {
 		return categoryService.findById(id);
 	}
 
-	@PostMapping
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@PreAuthorize("hasRole('ADMIN')")
-	public CategoryDto create(@RequestBody CategoryDto dto) {
-		return categoryService.save(dto);
+	public CategoryDto create(
+			@RequestParam("name") String name,
+			@RequestParam(value = "image", required = false) MultipartFile image
+	) {
+		return categoryService.save(name, image);
 	}
 
-	@PutMapping("/{id}")
+	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@PreAuthorize("hasRole('ADMIN')")
-	public CategoryDto update(@PathVariable Long id, @RequestBody CategoryDto dto) {
-		return categoryService.update(id, dto);
+	public CategoryDto update(
+			@PathVariable Long id,
+			@RequestParam("name") String name,
+			@RequestParam(value = "image", required = false) MultipartFile image
+	) {
+		return categoryService.update(id, name, image);
 	}
 
 	@DeleteMapping("/{id}")

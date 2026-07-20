@@ -24,7 +24,15 @@ public class JwtService {
 		this.secret = secret;
 		this.expiration = expiration;
 	}
-
+	@SuppressWarnings("unchecked")
+	public List<String> extractRoles(String token) {
+		return (List<String>) Jwts.parser()
+				.verifyWith(signingKey())
+				.build()
+				.parseSignedClaims(token)
+				.getPayload()
+				.get("roles");
+	}
 	public String generateToken(User user) {
 		return Jwts.builder()
 				.subject(user.getEmail())

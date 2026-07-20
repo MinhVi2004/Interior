@@ -89,7 +89,7 @@ const PaymentResultCOD = () => {
                                         key={index}
                                         className="flex gap-4 border rounded-xl p-4 hover:shadow-sm transition"
                                     >
-                                        <Link to={`/product/${product?._id}`}>
+                                        <Link to={`/product/${product?.id}`}>
                                             <img
                                                 src={variant?variant.image:product?.images?.[0]?.url}
                                                 alt={product?.name}
@@ -98,7 +98,7 @@ const PaymentResultCOD = () => {
                                         </Link>
                                         <div className="flex-1">
                                             <Link
-                                                to={`/product/${product?._id}`}
+                                                to={`/product/${product?.id}`}
                                                 className="font-semibold text-gray-800 hover:underline"
                                             >
                                                 {product?.name}
@@ -147,7 +147,7 @@ const PaymentResultCOD = () => {
                     <div className="space-y-3 text-sm text-gray-700">
                         <div className="flex justify-between">
                             <span>Mã đơn hàng:</span>
-                            <span className="font-medium">{order._id}</span>
+                            <span className="font-medium">{order.id}</span>
                         </div>
                         <div className="flex justify-between">
                             <span>Ngày đặt hàng:</span>

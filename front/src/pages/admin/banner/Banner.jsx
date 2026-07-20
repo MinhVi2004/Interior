@@ -1,143 +1,319 @@
-import { useEffect, useState } from 'react';
-import axiosInstance from '../../../utils/axios';
-import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
-import { toast } from 'react-toastify';
-import Swal from 'sweetalert2';
+import { useEffect, useState } from "react";
+import axiosInstance from "../../../utils/axios";
+import { useNavigate } from "react-router-dom";
+import {
+    Plus,
+    Image,
+    Trash2,
+    Calendar,
+} from "lucide-react";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+
 const ListBanner = () => {
-      const [banners, setBanners] = useState([]);
-      const navigate = useNavigate(); // Hook để điều hướng
-      const [isFull, setIsFull] = useState(false); // Trạng thái để kiểm tra xemĐã đủ 6 banner hay chưa
 
-      const fetchBanners = async () => {
-            try {
-                  const res = await axiosInstance.get('/api/banner');
-                  setBanners(res.data);
-            } catch (err) {
-                  console.error('Lỗi khi lấy danh sách banner:', err);
-            }
-      };
+    const [banners, setBanners] = useState([]);
 
-      useEffect(() => {
+    const navigate = useNavigate();
+
+    const fetchBanners = async () => {
+
+        try {
+
+            const res = await axiosInstance.get("/api/banner");
+
+            setBanners(res.data);
+
+        } catch (err) {
+
+            console.error(err);
+
+            toast.error("Không thể tải danh sách banner.");
+
+        }
+
+    };
+
+    useEffect(() => {
+
+        fetchBanners();
+
+    }, []);
+
+    const handleAdd = () => {
+
+        if (banners.length >= 6) {
+
+            toast.info("Đã đủ 6 banner.");
+
+            return;
+
+        }
+
+        navigate("/admin/banner/add");
+
+    };
+
+    const handleDelete = async (id) => {
+
+        const result = await Swal.fire({
+
+            title: "Xóa banner?",
+
+            text: "Bạn có chắc chắn muốn xóa banner này?",
+
+            icon: "warning",
+
+            showCancelButton: true,
+
+            confirmButtonColor: "#8B5E3C",
+
+            cancelButtonColor: "#9ca3af",
+
+            confirmButtonText: "Xóa",
+
+            cancelButtonText: "Hủy",
+
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+
+            await axiosInstance.delete(`/api/banner/${id}`);
+
+            toast.success("Xóa banner thành công.");
+
             fetchBanners();
-      }, []);
 
-      useEffect(() => {
-            if (banners.length >= 6) {
-                  setIsFull(true);
-            } else {
-                  setIsFull(false);
-            }
-      }, [banners]);
+        } catch (err) {
 
-      const handleAdd = () => {
-            if (isFull) {
-                  return toast.info('Đã đủ 6 banner, không thể thêm nữa!');
-            }
-            navigate('/admin/banner/add');
-      };
-      const handleDelete = async id => {
-            const confirm = await Swal.fire({
-                  title: 'Xác nhận xoá',
-                  text: 'Bạn có chắc chắn muốn xoá?',
-                  icon: 'warning',
-                  showCancelButton: true,
-                  confirmButtonText: 'Xoá',
-                  cancelButtonText: 'Hủy',
-                  confirmButtonColor: '#d33',
-                  cancelButtonColor: '#3085d6',
-            });
-            if (confirm.isConfirmed) {
-                  try {
-                        await axiosInstance.delete(`api/banner/${id}`);
-                        toast.success('Xoá banner thành công');
-                        fetchBanners();
-                  } catch (err) {
-                        console.error('Lỗi khi xoá banner:', err);
-                        toast.error('Xoá thất bại!');
-                  }
-            }
-      };
+            console.error(err);
 
-      return (
-            <div className="p-6 max-w-4xl mx-auto">
-                  <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-bold">Danh sách Banner</h2>
-                        <button
-                              onClick={handleAdd}
-                              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-4 flex items-center"
+            toast.error("Xóa banner thất bại.");
+
+        }
+
+    };
+
+    return (
+
+        <div className="max-w-7xl mx-auto p-8">
+
+            <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
+
+                {/* Header */}
+
+                <div className="border-b p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+                    <div>
+
+                        <h2 className="text-3xl font-bold text-gray-800">
+
+                            Banner
+
+                        </h2>
+
+                        <p className="text-gray-500 mt-1">
+
+                            Quản lý banner trang chủ
+
+                        </p>
+
+                    </div>
+
+                    <div className="flex gap-3">
+
+                        <span
+                            className={`
+                                px-4 py-2 rounded-full text-sm font-medium
+                                ${
+                                    banners.length >= 6
+                                        ? "bg-red-100 text-red-600"
+                                        : "bg-green-100 text-green-600"
+                                }
+                            `}
                         >
-                              <Plus className="mr-2" />
-                              Banner
-                        </button>
-                  </div>
 
-                  <table className="min-w-full border-collapse">
-                        <thead className="bg-gray-100 text-gray-700 text-left">
-                              <tr>
-                                    <th className="px-6 py-3 border-b">Ảnh</th>
-                                    <th className="px-6 py-3 border-b">
-                                          Ngày tạo
-                                    </th>
-                                    <th className="px-6 py-3 border-b">#</th>
-                              </tr>
+                            {banners.length}/6 Banner
+
+                        </span>
+
+                        <button
+                            onClick={handleAdd}
+                            disabled={banners.length >= 6}
+                            className="
+                                flex items-center gap-2
+                                bg-[#8B5E3C]
+                                hover:bg-[#714b2f]
+                                disabled:bg-gray-300
+                                disabled:cursor-not-allowed
+                                text-white
+                                px-5
+                                py-2.5
+                                rounded-xl
+                                transition
+                            "
+                        >
+
+                            <Plus size={18} />
+
+                            Thêm banner
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                {/* Table */}
+
+                <div className="overflow-x-auto">
+
+                    <table className="w-full">
+
+                        <thead className="bg-gray-50">
+
+                            <tr>
+
+                                <th className="text-left px-6 py-4">
+                                    Banner
+                                </th>
+
+                                <th className="text-left px-6 py-4">
+                                    Ngày tạo
+                                </th>
+
+                                <th className="text-center px-6 py-4">
+                                    Thao tác
+                                </th>
+
+                            </tr>
+
                         </thead>
+
                         <tbody>
-                              {banners.length === 0 && (
-                                    <tr>
-                                          <td
-                                                colSpan="3"
-                                                className="text-center py-6 text-gray-500"
-                                          >
-                                                Không có banner nào.
-                                          </td>
-                                    </tr>
-                              )}
-                              {banners.map(ban => (
-                                    <tr
-                                          key={ban._id}
-                                          onClick={() =>
-                                                navigate(
-                                                      `/admin/banner/update/${ban._id}`
-                                                )
-                                          }
-                                          className="hover:bg-gray-50 cursor-pointer transition"
+
+                            {banners.length === 0 && (
+
+                                <tr>
+
+                                    <td
+                                        colSpan={3}
+                                        className="py-16"
                                     >
-                                          <td className="px-6 py-4 border-b">
-                                                <img
-                                                      src={ban.image}
-                                                      alt={ban.name}
-                                                      className="h-24 object-cover rounded-md shadow-sm border"
-                                                />
-                                          </td>
-                                          {/* <td className="px-6 py-4 border-b text-gray-800 font-medium">
-                                                {ban.name}
-                                          </td> */}
-                                          {/* <td className="px-6 py-4 border-b text-gray-800 font-medium mw-40">{ban.description}</td> */}
-                                          <td className="px-6 py-4 border-b text-gray-600">
-                                                {new Date(
-                                                      ban.createdAt
-                                                ).toLocaleDateString()}
-                                          </td>
-                                          <td>
-                                                <button
-                                                      onClick={e => {
-                                                            e.stopPropagation(); // ✅ ngăn click lan ra ngoài
-                                                            handleDelete(
-                                                                  ban._id
-                                                            );
-                                                      }}
-                                                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                                                >
-                                                      Xóa
-                                                </button>
-                                          </td>
-                                    </tr>
-                              ))}
+
+                                        <div className="flex flex-col items-center text-gray-400">
+
+                                            <Image size={70} />
+
+                                            <p className="mt-4 text-lg">
+
+                                                Chưa có banner nào
+
+                                            </p>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            )}
+
+                            {banners.map((banner) => (
+
+                                <tr
+                                    key={banner.id}
+                                    onClick={() =>
+                                        navigate(
+                                            `/admin/banner/update/${banner.id}`
+                                        )
+                                    }
+                                    className="border-t hover:bg-[#faf8f5] transition cursor-pointer"
+                                >
+
+                                    <td className="px-6 py-5">
+
+                                        <img
+                                            src={banner.image}
+                                            alt=""
+                                            className="
+                                                w-64
+                                                h-32
+                                                object-cover
+                                                rounded-xl
+                                                border
+                                                shadow
+                                            "
+                                        />
+
+                                    </td>
+
+                                    <td className="px-6">
+
+                                        <div className="flex items-center gap-2 text-gray-600">
+
+                                            <Calendar size={16} />
+
+                                            {new Date(
+                                                banner.createdAt
+                                            ).toLocaleDateString("vi-VN")}
+
+                                        </div>
+
+                                    </td>
+
+                                    <td className="text-center">
+
+                                        <button
+                                            onClick={(e) => {
+
+                                                e.stopPropagation();
+
+                                                handleDelete(
+                                                    banner.id
+                                                );
+
+                                            }}
+                                            className="
+                                                inline-flex
+                                                items-center
+                                                gap-2
+                                                px-4
+                                                py-2
+                                                rounded-lg
+                                                bg-red-500
+                                                hover:bg-red-600
+                                                text-white
+                                                transition
+                                            "
+                                        >
+
+                                            <Trash2 size={16} />
+
+                                            Xóa
+
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+                            ))}
+
                         </tbody>
-                  </table>
+
+                    </table>
+
+                </div>
+
             </div>
-      );
+
+        </div>
+
+    );
+
 };
 
 export default ListBanner;

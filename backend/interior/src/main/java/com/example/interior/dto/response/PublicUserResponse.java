@@ -13,9 +13,9 @@ public record PublicUserResponse(
 		Role role,
 		LoginType type,
 		Boolean isVerified,
-		Boolean status,
-		List<Long> addressIds,
-		Long cartId,
-		List<Long> orderIds
+		Boolean status
+//		List<Long> addressIds,
+//		Long cartId,
+//		List<Long> orderIds
 ) {
 }

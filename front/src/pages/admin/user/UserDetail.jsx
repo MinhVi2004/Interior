@@ -242,11 +242,11 @@ const UserDetail = () => {
                             <tbody>
                                 {orders.map(order => (
                                     <tr
-                                        key={order._id}
+                                        key={order.id}
                                         className="border-t text-sm"
                                     >
                                         <td className="px-4 py-2">
-                                            {order.code || order._id}
+                                            {order.code || order.id}
                                         </td>
                                         <td className="px-4 py-2">
                                             {new Date(

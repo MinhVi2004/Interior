@@ -68,6 +68,12 @@ public class ProductServiceImpl extends EntityMapperSupport implements ProductSe
     }
 
     private ProductDto toDto(Product product) {
+
+        String thumbnail = product.getImages() != null
+                && !product.getImages().isEmpty()
+                ? product.getImages().get(0).getUrl()
+                : null;
+
         return new ProductDto(
                 product.getId(),
                 product.getSku(),
@@ -78,8 +84,9 @@ public class ProductServiceImpl extends EntityMapperSupport implements ProductSe
                 product.getHasVariant(),
                 product.getQrCodeUrl(),
                 product.getCategory() == null ? null : product.getCategory().getId(),
-                idsOf(product.getImages()),
-                idsOf(product.getVariants())
+                thumbnail,
+                idsOf(product.getVariants()),
+                product.getCreatedAt()
         );
     }
 }

@@ -9,12 +9,18 @@ const HomePage = () => {
   const categoryId = searchParams.get("cate");
 
   return (
-    <div>
-      <Banner />
-      <ListCategory />
-      <ListProduct selectedCategory={categoryId} />
-    </div>
-  );
+    <main className="min-h-screen bg-[#F5F1EB]">
+
+        <div className="relative z-10">
+            <Banner />
+        </div>
+
+        <ListCategory />
+
+        <ListProduct selectedCategory={categoryId} />
+
+    </main>
+);
 };
 
 export default HomePage;

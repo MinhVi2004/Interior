@@ -63,11 +63,30 @@ const AddProduct = () => {
         }
 
         const formData = new FormData();
-        formData.append('data', JSON.stringify(form));
 
-        images.forEach(img => {
-            formData.append('images', img);
-        });
+formData.append(
+    "data",
+    new Blob(
+        [
+            JSON.stringify({
+                name: form.name,
+                description: form.description,
+                price: Number(form.price),
+                quantity: Number(form.quantity),
+                hasVariant: false,
+                qrCodeUrl: null,
+                categoryId: Number(form.category),
+            }),
+        ],
+        {
+            type: "application/json",
+        }
+    )
+);
+
+images.forEach(img => {
+    formData.append("images", img);
+});
 
         try {
             await axiosInstance.post('/api/product', formData);
@@ -80,105 +99,193 @@ const AddProduct = () => {
     };
 
     return (
-        <div className="p-6 max-w-5xl mx-auto">
-            <h2 className="text-2xl font-bold mb-6">Thêm sản phẩm</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    placeholder="Tên sản phẩm"
-                    required
-                    className="w-full p-2 border rounded"
-                />
-                <textarea
-                    name="description"
-                    value={form.description}
-                    onChange={handleChange}
-                    placeholder="Mô tả sản phẩm"
-                    required
-                    className="w-full p-2 border rounded"
-                />
-                <input
-                    type="number"
-                    name="price"
-                    value={form.price}
-                    onChange={handleChange}
-                    placeholder="Giá "
-                    required
-                    className="w-full p-2 border rounded"
-                />
-                <input
-                    type="number"
-                    name="quantity"
-                    value={form.quantity}
-                    onChange={handleChange}
-                    placeholder="Số lượng"
-                    required
-                    className="w-full p-2 border rounded"
-                />
-                <select
-                    name="category"
-                    value={form.category}
-                    onChange={handleChange}
-                    required
-                    className="w-full p-2 border rounded"
-                >
-                    <option value="">-- Chọn danh mục --</option>
-                    {categories.map(cat => (
-                        <option key={cat._id} value={cat._id}>
-                            {cat.name}
-                        </option>
-                    ))}
-                </select>
+    <div className="min-h-screen bg-[#f7f5f2] p-6">
+        <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm hover:shadow-lg transition p-8">
+            {/* Header */}
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-[#8B5E3C]">
+                    Thêm sản phẩm
+                </h1>
+                <p className="text-gray-500 mt-2">
+                    Tạo sản phẩm mới cho cửa hàng nội thất
+                </p>
+            </div>
 
-                <label className="font-semibold">Thêm ảnh sản phẩm:</label>
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAddSingleImage}
-                    className="w-full p-2 border rounded"
-                />
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Tên */}
+                <div>
+                    <label className="block mb-2 font-semibold text-gray-700">
+                        Tên sản phẩm
+                    </label>
 
-                <div className="flex flex-wrap gap-2 mt-2">
-                    {previewImages.map((src, idx) => (
-                        <div key={idx} className="relative">
-                            <img
-                                src={src}
-                                alt={`Ảnh ${idx + 1}`}
-                                className="w-32 h-32 object-cover rounded"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => handleRemoveImage(idx)}
-                                className="absolute top-0 right-0 text-white bg-red-500 rounded-full w-5 h-5 text-xs"
-                                title="Xoá"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
-                    ))}
+                    <input
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        placeholder="Nhập tên sản phẩm..."
+                        required
+                        className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+                    />
                 </div>
 
-                <div className="flex justify-end gap-4">
+                {/* Mô tả */}
+                <div>
+                    <label className="block mb-2 font-semibold text-gray-700">
+                        Mô tả
+                    </label>
+
+                    <textarea
+                        rows={5}
+                        name="description"
+                        value={form.description}
+                        onChange={handleChange}
+                        placeholder="Nhập mô tả..."
+                        required
+                        className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+                    />
+                </div>
+
+                {/* Giá + Số lượng */}
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="block mb-2 font-semibold text-gray-700">
+                            Giá
+                        </label>
+
+                        <input
+                            type="number"
+                            name="price"
+                            value={form.price}
+                            onChange={handleChange}
+                            placeholder="0"
+                            required
+                            className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block mb-2 font-semibold text-gray-700">
+                            Số lượng
+                        </label>
+
+                        <input
+                            type="number"
+                            name="quantity"
+                            value={form.quantity}
+                            onChange={handleChange}
+                            placeholder="0"
+                            required
+                            className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+                        />
+                    </div>
+                </div>
+
+                {/* Danh mục */}
+                <div>
+                    <label className="block mb-2 font-semibold text-gray-700">
+                        Danh mục
+                    </label>
+
+                    <select
+                        name="category"
+                        value={form.category}
+                        onChange={handleChange}
+                        required
+                        className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+                    >
+                        <option value="">-- Chọn danh mục --</option>
+
+                        {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>
+                                {cat.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Upload */}
+                <div>
+                    <label className="block mb-3 font-semibold text-gray-700">
+                        Hình ảnh sản phẩm
+                    </label>
+
+                    <label className="flex justify-center items-center h-40 border-2 border-dashed border-[#8B5E3C]/40 rounded-2xl cursor-pointer hover:bg-[#faf7f4] transition">
+                        <div className="text-center">
+                            <p className="font-semibold text-[#8B5E3C]">
+                                Chọn ảnh
+                            </p>
+
+                            <p className="text-sm text-gray-500 mt-1">
+                                Tối đa 10 ảnh
+                            </p>
+                        </div>
+
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAddSingleImage}
+                            className="hidden"
+                        />
+                    </label>
+                </div>
+
+                {/* Preview */}
+
+                {previewImages.length > 0 && (
+                    <div>
+                        <label className="block mb-3 font-semibold text-gray-700">
+                            Xem trước
+                        </label>
+
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            {previewImages.map((src, idx) => (
+                                <div
+                                    key={idx}
+                                    className="relative group rounded-xl overflow-hidden shadow"
+                                >
+                                    <img
+                                        src={src}
+                                        alt=""
+                                        className="w-full h-40 object-cover"
+                                    />
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleRemoveImage(idx)
+                                        }
+                                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Buttons */}
+
+                <div className="flex justify-end gap-4 pt-4">
                     <button
                         type="button"
                         onClick={() => navigate('/admin/product')}
-                        className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
+                        className="px-6 py-3 rounded-xl bg-gray-200 hover:bg-gray-300 transition font-medium"
                     >
-                        Trở về
+                        Quay lại
                     </button>
 
                     <button
                         type="submit"
-                        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                        className="px-6 py-3 rounded-xl bg-[#8B5E3C] text-white hover:bg-[#71482d] transition font-medium shadow"
                     >
                         Lưu sản phẩm
                     </button>
                 </div>
             </form>
         </div>
-    );
+    </div>
+);
 };
 
 export default AddProduct;

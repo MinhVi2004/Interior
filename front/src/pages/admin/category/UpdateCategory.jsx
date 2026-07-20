@@ -10,6 +10,7 @@ const UpdateCategory = () => {
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (image) {
       const objectUrl = URL.createObjectURL(image);
@@ -34,75 +35,157 @@ const UpdateCategory = () => {
     fetchCategory();
   }, [id]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const formData = new FormData();
-      formData.append("name", name);
-      if (image) formData.append("image", image);
 
-      await axiosInstance.put(`api/category/${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      toast.success("Cập nhật danh mục thành công");
-      window.location.reload();
-    } catch (err) {
-      console.error(err);
-      toast.error("Có lỗi xảy ra khi cập nhật danh mục");
+  if (!name.trim()) {
+    toast.warning("Vui lòng nhập tên danh mục.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("name", name);
+
+    if (image) {
+      formData.append("image", image);
     }
-  };
+
+    await axiosInstance.put(
+      `api/category/${id}`,
+      formData
+    );
+
+    toast.success("Cập nhật danh mục thành công!");
+
+    setTimeout(() => {
+      navigate("/admin/category");
+    }, 800);
+
+  } catch (err) {
+    console.error(err);
+
+    toast.error(
+      err.response?.data?.message ||
+      "Không thể cập nhật danh mục."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
-    <div className="max-w-xl mx-auto bg-white p-8 rounded-xl shadow-md mt-8 relative">
+  <div className="min-h-screen bg-[#f7f5f2] flex items-center justify-center p-6">
+
+    <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl p-8 relative">
+
       <button
         onClick={() => navigate("/admin/category")}
-        className="absolute top-4 right-4 text-gray-500 hover:text-blue-300 flex items-center gap-1 transition duration-200"
+        className="absolute top-6 right-6 text-gray-400 hover:text-[#8B5E3C] transition"
       >
-        <X size={40} />
+        <X size={28} />
       </button>
-      <h1 className="text-2xl font-semibold mb-6 text-gray-600">Cập nhật danh mục</h1>
-      <form onSubmit={handleSubmit} className="space-y-5">
+
+      <h2 className="text-3xl font-bold text-gray-800">
+        Cập nhật danh mục
+      </h2>
+
+      <p className="text-gray-500 mt-2">
+        Chỉnh sửa thông tin và hình ảnh danh mục.
+      </p>
+
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 mt-8"
+      >
+
         <div>
-          <label className="block mb-1 font-medium">Tên danh mục</label>
+
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Tên danh mục
+          </label>
+
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full border border-gray-300 p-2 rounded focus:outline-blue-500"
-            placeholder="Nhập tên danh mục"
-            required
+            placeholder="Ví dụ: Sofa"
+            className="w-full h-12 rounded-xl border border-gray-300 px-4 outline-none focus:ring-2 focus:ring-[#8B5E3C]"
           />
+
         </div>
+
         <div>
-          <label className="block mb-1 font-medium">Hình ảnh mới (nếu có)</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImage(e.target.files[0])}
-            className="w-full border border-gray-300 p-2 rounded"
-          />
-        </div>
-        {preview && (
-          <div className="mt-4 flex justify-center  ">
-            <img
-              src={preview}
-              alt="Preview"
-              className="w-40 h-40 object-cover rounded border"
+
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Hình ảnh
+          </label>
+
+          <label className="cursor-pointer">
+
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => setImage(e.target.files[0])}
             />
-          </div>
-        )}
+
+            <div className="border-2 border-dashed border-gray-300 rounded-2xl h-52 flex flex-col justify-center items-center hover:border-[#8B5E3C] transition">
+
+              {preview ? (
+
+                <img
+                  src={preview}
+                  alt=""
+                  className="h-40 object-contain rounded-xl"
+                />
+
+              ) : (
+
+                <>
+                  <span className="text-5xl mb-3">
+                    🖼️
+                  </span>
+
+                  <p className="text-gray-500">
+                    Chọn ảnh danh mục
+                  </p>
+
+                </>
+
+              )}
+
+            </div>
+
+          </label>
+
+          {image && (
+
+            <p className="mt-2 text-sm text-gray-500">
+              Đã chọn: <span className="font-medium">{image.name}</span>
+            </p>
+
+          )}
+
+        </div>
+
         <button
           type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded w-full"
+          disabled={loading}
+          className="w-full h-12 rounded-xl bg-[#8B5E3C] hover:bg-[#714b2f] text-white font-semibold transition disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          Cập nhật danh mục
+          {loading ? "Đang cập nhật..." : "Lưu thay đổi"}
         </button>
+
       </form>
+
     </div>
-  );
+
+  </div>
+);
 };
 
 export default UpdateCategory;

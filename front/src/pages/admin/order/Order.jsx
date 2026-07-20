@@ -121,16 +121,16 @@ const OrderPage = () => {
                             {filteredOrders.length > 0 ? (
                                 filteredOrders.map(order => (
                                     <tr
-                                        key={order._id}
+                                        key={order.id}
                                         className="border-b hover:bg-gray-50 cursor-pointer transition"
                                         onClick={() =>
                                             navigate(
-                                                `/admin/order/${order._id}`
+                                                `/admin/order/${order.id}`
                                             )
                                         }
                                     >
                                         <td className="px-4 py-3 text-blue-600 font-medium">
-                                            #{order._id.toUpperCase()}
+                                            #{order.id.toUpperCase()}
                                         </td>
                                         <td className="px-4 py-3">
                                             {order.user?.name}
