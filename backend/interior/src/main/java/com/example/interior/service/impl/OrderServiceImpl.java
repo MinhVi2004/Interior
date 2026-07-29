@@ -77,6 +77,6 @@ public class OrderServiceImpl extends EntityMapperSupport implements OrderServic
     }
 
     private OrderDto toDto(Order order) {
-        return new OrderDto(order.getId(), order.getUser() == null ? null : order.getUser().getId(), order.getAddress() == null ? null : order.getAddress().getId(), order.getPaymentMethod(), order.getRetryCount(), order.getTotalAmount(), order.getIsPaid(), order.getPaidAt(), order.getStatus(), idsOf(order.getOrderItems()));
+        return new OrderDto(order.getId(), order.getUser() == null ? null : order.getUser().getId(), order.getAddress() == null ? null : order.getAddress().getId(), order.getPaymentMethod(), order.getRetryCount(), order.getTotalAmount(), order.getIsPaid(), order.getPaidAt(), order.getStatus(), idsOf(order.getOrderItems()), order.getCreatedAt());
     }
 }

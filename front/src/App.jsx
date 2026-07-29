@@ -115,13 +115,13 @@ function App() {
                         </Route>
                     </Route>
                     {/* STAFF */}
-                    <Route path="/staff" element={<StaffRoute />}>
+                    {/* <Route path="/staff" element={<StaffRoute />}>
                         <Route element={<StaffLayout />}>
                             <Route path="" element={<POSMainPage />} />
                             <Route path="order" element={<OrderToday/>}/>
                             <Route path="order/:id" element={<OrderStaffDetail/>} />
                         </Route>
-                    </Route>
+                    </Route> */}
 
                 </Routes>
             </main>

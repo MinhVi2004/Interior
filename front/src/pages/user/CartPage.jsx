@@ -100,11 +100,6 @@ const CartPage = () => {
                 localStorage.setItem('cart', JSON.stringify(cartData));
             }
 
-            const cartQuantity = cartData.reduce(
-                (sum, item) => sum + item.quantity,
-                0
-            );
-            localStorage.setItem('cartQuantity', JSON.stringify(cartQuantity));
             window.dispatchEvent(new Event('cartUpdated'));
             fetchCart();
             toast.success('Cập nhật số lượng thành công');
@@ -147,11 +142,6 @@ const CartPage = () => {
                 localStorage.setItem('cart', JSON.stringify(cartData));
             }
 
-            const cartQuantity = cartData.reduce(
-                (sum, item) => sum + item.quantity,
-                0
-            );
-            localStorage.setItem('cartQuantity', JSON.stringify(cartQuantity));
             window.dispatchEvent(new Event('cartUpdated'));
             fetchCart();
             

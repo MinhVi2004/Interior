@@ -79,10 +79,6 @@ const SigninPage = () => {
       0
     );
 
-    localStorage.setItem(
-      "cartQuantity",
-      JSON.stringify(cartQuantity)
-    );
 
     window.dispatchEvent(new Event("cartUpdated"));
 

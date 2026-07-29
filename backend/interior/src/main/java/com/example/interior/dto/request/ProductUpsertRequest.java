@@ -3,14 +3,15 @@ package com.example.interior.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
+
 public record ProductUpsertRequest(
-		String sku,
 		String name,
 		String description,
 		Double price,
 		Integer quantity,
-		Boolean hasVariant,
+		Long categoryId,
 		String qrCodeUrl,
-		@NotNull Long categoryId
+		List<String> keepOldImages
 ) {
 }

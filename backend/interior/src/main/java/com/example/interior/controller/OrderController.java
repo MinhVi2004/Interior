@@ -1,8 +1,7 @@
 package com.example.interior.controller;
 
-import com.example.interior.dto.OrderDto;
+import com.example.interior.dto.*;
 import com.example.interior.dto.request.OrderCreateRequest;
-import com.example.interior.dto.request.StaffOrderUpdateRequest;
 import com.example.interior.dto.response.MessageResponse;
 import com.example.interior.entity.Address;
 import com.example.interior.entity.Cart;
@@ -90,7 +89,75 @@ public class OrderController {
 		User user = currentUserService.requireUser(authentication);
 		return orderRepository.findByUserIdOrderByCreatedAtDesc(user.getId()).stream().map(this::toDto).toList();
 	}
+	@GetMapping("/{id}")
+	public OrderDetailDto getDetail(@PathVariable Long id){
 
+		Order order = orderRepository.findById(id)
+				.orElseThrow(() ->
+						new IllegalArgumentException("Order not found: " + id)
+				);
+
+		return toDetailDto(order);
+	}
+
+	private OrderDetailDto toDetailDto(Order order) {
+
+		AddressDto addressDto = new AddressDto(
+				order.getAddress().getId(),
+				order.getAddress().getFullName(),
+				order.getAddress().getPhoneNumber(),
+				order.getAddress().getProvince(),
+				order.getAddress().getDistrict(),
+				order.getAddress().getWard(),
+				order.getAddress().getDetail(),
+				order.getAddress().getFullAddress(),
+				order.getAddress().getIsDefault(),
+				order.getAddress().getUser().getId()
+		);
+
+		List<OrderItemDetailDto> items =
+				orderItemRepository.findByOrderId(order.getId())
+						.stream()
+						.map(item -> {
+
+							ProductDto productDto = new ProductDto(
+									item.getProduct().getId(),
+									item.getProduct().getSku(),
+									item.getProduct().getName(),
+									item.getProduct().getDescription(),
+									item.getProduct().getPrice(),
+									item.getProduct().getQuantity(),
+									item.getProduct().getQrCodeUrl(),
+									item.getProduct().getCategory().getId(),
+									item.getProduct().getThumbnail(),
+									item.getProduct().getCreatedAt()
+							);
+
+
+							return new OrderItemDetailDto(
+									item.getId(),
+									item.getQuantity(),
+									item.getPrice(),
+									productDto
+							);
+
+						})
+						.toList();
+
+
+		return new OrderDetailDto(
+				order.getId(),
+				order.getUser().getId(),
+				order.getPaymentMethod(),
+				order.getStatus(),
+				order.getTotalAmount(),
+				order.getIsPaid(),
+				order.getPaidAt(),
+				order.getCreatedAt(),
+				addressDto,
+				items
+		);
+	}
 	@GetMapping("/admin")
 	@PreAuthorize("hasRole('ADMIN')")
 	public List<OrderDto> findAllAdmin() {
@@ -120,29 +187,39 @@ public class OrderController {
 		order.setRetryCount(request.retryCount());
 		return toDto(orderRepository.save(order));
 	}
-
-	@PostMapping("/staff")
-	@PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+	@PutMapping("/admin/status/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
 	@Transactional
-	public OrderDto staffUpdate(@RequestBody StaffOrderUpdateRequest request) {
-		Order order = orderRepository.findById(request.orderId()).orElseThrow(() -> new IllegalArgumentException("Order not found: " + request.orderId()));
+	public OrderDto updateStatus(
+			@PathVariable Long id,
+			@RequestBody OrderDto request
+	) {
+		Order order = orderRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
+
 		order.setStatus(request.status());
+
 		return toDto(orderRepository.save(order));
 	}
 
-	@GetMapping("/staff/orderToday")
-	@PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-	public List<OrderDto> today() {
-		LocalDateTime start = LocalDateTime.now().toLocalDate().atStartOfDay();
-		LocalDateTime end = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
-		return orderRepository.findToday(start, end).stream().map(this::toDto).toList();
+	@GetMapping("/admin/today")
+	@PreAuthorize("hasRole('ADMIN')")
+	public List<OrderDto> todayOrders() {
+
+		LocalDateTime start = LocalDateTime.now()
+				.toLocalDate()
+				.atStartOfDay();
+
+		LocalDateTime end = LocalDateTime.now()
+				.toLocalDate()
+				.atTime(LocalTime.MAX);
+
+		return orderRepository.findToday(start, end)
+				.stream()
+				.map(this::toDto)
+				.toList();
 	}
 
-	@GetMapping("/staff/{id}")
-	@PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-	public OrderDto staffFindById(@PathVariable Long id) {
-		return toDto(orderRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Order not found: " + id)));
-	}
 
 	private OrderDto createOrderFromCart(User user, Long addressId, String paymentMethod, boolean isVnpay) {
 		Cart cart = cartRepository.findByUserId(user.getId()).orElseThrow(() -> new IllegalArgumentException("Cart not found"));
@@ -187,6 +264,6 @@ public class OrderController {
 
 	private OrderDto toDto(Order order) {
 		List<Long> orderItemIds = orderItemRepository.findByOrderId(order.getId()).stream().map(OrderItem::getId).toList();
-		return new OrderDto(order.getId(), order.getUser() == null ? null : order.getUser().getId(), order.getAddress() == null ? null : order.getAddress().getId(), order.getPaymentMethod(), order.getRetryCount(), order.getTotalAmount(), order.getIsPaid(), order.getPaidAt(), order.getStatus(), orderItemIds);
+		return new OrderDto(order.getId(), order.getUser() == null ? null : order.getUser().getId(), order.getAddress() == null ? null : order.getAddress().getId(), order.getPaymentMethod(), order.getRetryCount(), order.getTotalAmount(), order.getIsPaid(), order.getPaidAt(), order.getStatus(), orderItemIds, order.getCreatedAt());
 	}
 }

@@ -43,4 +43,6 @@ public class Order extends BaseEntity {
 
     @OneToMany(mappedBy = "order", cascade = jakarta.persistence.CascadeType.ALL)
     private List<OrderItem> orderItems;
+
+    private LocalDateTime createAt;
 }

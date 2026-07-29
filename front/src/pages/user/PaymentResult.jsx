@@ -22,7 +22,6 @@ const PaymentResult = () => {
         return item.price || item.product?.price || 0;
     };
     useEffect(() => {
-        localStorage.removeItem('cartQuantity');
         window.dispatchEvent(new Event('cartUpdated'));
         const fetchOrder = async () => {
             try {
@@ -53,11 +52,25 @@ const PaymentResult = () => {
     }, [txnRef]);
 
     if (!order)
-        return (
-            <div className="p-6 text-center text-gray-600">
-                đang tải đơn hàng...
+    return (
+        <div className="min-h-[400px] flex items-center justify-center bg-[#FAF7F3]">
+            <div className="flex flex-col items-center gap-5">
+                <div className="relative">
+                    <div className="w-16 h-16 rounded-full border-4 border-[#E8DDD3]"></div>
+                    <div className="absolute top-0 left-0 w-16 h-16 rounded-full border-4 border-[#8B5E3C] border-t-transparent animate-spin"></div>
+                </div>
+
+                <div className="text-center">
+                    <p className="text-lg font-medium text-[#5C4033]">
+                        Đang tải đơn hàng...
+                    </p>
+                    <p className="text-sm text-[#9A8174] mt-1">
+                        Vui lòng chờ trong giây lát
+                    </p>
+                </div>
             </div>
-        );
+        </div>
+    );
 
     if (!order.isPaid) {
         return (

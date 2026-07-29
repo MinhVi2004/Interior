@@ -78,13 +78,7 @@ const ProductDetailPage = () => {
             localStorage.setItem("cart", JSON.stringify(localCart));
         }
 
-        const currentQuantity =
-            JSON.parse(localStorage.getItem("cartQuantity")) || 0;
-
-        localStorage.setItem(
-            "cartQuantity",
-            JSON.stringify(currentQuantity + quantity)
-        );
+        
 
         window.dispatchEvent(new Event("cartUpdated"));
 

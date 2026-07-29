@@ -275,7 +275,7 @@ const CheckoutPage = () => {
             // Tạo đơn hàng trước
             const createOrderRes = await axiosInstance.post('/api/order', {
                 orderItems,
-                address: selectedAddress.id,
+                addressId: selectedAddress.id,
                 paymentMethod: paymentMethod,
                 totalAmount: totalPrice,
             });
@@ -283,7 +283,7 @@ const CheckoutPage = () => {
             const orderId = createOrderRes.data.id;
 
             if (paymentMethod === 'COD') {
-                toast.success(' đặt hàng thành công với phương thức COD!');
+                toast.success('Đặt hàng thành công với phương thức COD!');
                 navigate(`/payment-result-cod/${orderId}`);
             } else if (paymentMethod === 'vnpay') {
                 const res = await axiosInstance.post(
@@ -301,7 +301,7 @@ const CheckoutPage = () => {
             }
         } catch (err) {
             console.error(err);
-            toast.error(' đặt hàng thất bại!');
+            toast.error('Đặt hàng thất bại!');
         } finally {
             setIsSubmitting(false); // ⬅️ Mở lại khi xong
         }

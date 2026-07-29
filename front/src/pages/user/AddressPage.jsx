@@ -16,6 +16,7 @@ const AddressPage = () => {
         district: '',
         ward: '',
         detail: '',
+        fullAddress: '',
         isDefault: false,
     });
 
@@ -97,6 +98,17 @@ const AddressPage = () => {
         fetchWards();
     }, [form.district]);
 
+    const generateFullAddress = () => {
+        return [
+            form.detail,
+            form.ward,
+            form.district,
+            form.province,
+        ]
+            .filter(Boolean)
+            .join(', ');
+    };
+
     const handleSubmit = async e => {
         e.preventDefault();
         const nameRegex = /^[^\d]{6,}$/; // fullName: ít nhất 6 ký tự, không chứa số
@@ -133,12 +145,16 @@ const AddressPage = () => {
             toast.warning(' địa chỉ chi tiết phải có ít nhất 6 ký tự.');
             return;
         }
+        const submitForm = {
+            ...form,
+            fullAddress: generateFullAddress(),
+        };
         try {
             if (isEdit) {
-                await axios.put(`/api/address/${editId}`, form);
+                await axios.put(`/api/address/${editId}`, submitForm);
                 toast.success('Sửa  địa chỉ thành công!');
             } else {
-                await axios.post('/api/address', form);
+                await axios.post('/api/address', submitForm);
                 toast.success('Thêm  địa chỉ thành công!');
             }
             resetForm();
@@ -187,19 +203,20 @@ const AddressPage = () => {
     };
 
     const resetForm = () => {
-        setForm({
-            fullName: '',
-            phoneNumber: '',
-            province: '',
-            district: '',
-            ward: '',
-            detail: '',
-            isDefault: false,
-        });
-        setIsEdit(false);
-        setEditId(null);
-    };
+    setForm({
+        fullName: '',
+        phoneNumber: '',
+        province: '',
+        district: '',
+        ward: '',
+        detail: '',
+        fullAddress: '',
+        isDefault: false,
+    });
 
+    setIsEdit(false);
+    setEditId(null);
+};
     return (
     <div className="min-h-screen bg-[#f8f6f2] p-6">
 
@@ -291,11 +308,8 @@ const AddressPage = () => {
 
 
                                         <p className="text-gray-600 text-sm">
-                                            {address.detail},
-                                            {address.ward},
-                                            {address.district},
-                                            {address.province}
-                                        </p>
+    {address.fullAddress}
+</p>
 
                                     </div>
 

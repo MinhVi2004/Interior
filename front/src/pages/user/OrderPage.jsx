@@ -6,14 +6,21 @@ import { Clock, PackageCheck, Truck, XCircle, CheckCircle, BadgeCheck, X } from 
 import { Link } from 'react-router-dom';
 
 const statusIcons = {
-  ' đang xác nhận': <Clock className="text-yellow-500" />,
-  ' đang xử lý': <PackageCheck className="text-blue-500" />,
-  ' đang vận chuyển': <Truck className="text-orange-500" />,
+  'Đang xác nhận': <Clock className="text-yellow-500" />,
+  'Đang xử lý': <PackageCheck className="text-blue-500" />,
+  'Đang vận chuyển': <Truck className="text-orange-500" />,
   'Đã vận chuyển': <CheckCircle className="text-green-600" />,
   'Hoàn thành': <BadgeCheck className="text-green-700" />,
   'Đã hủy': <XCircle className="text-red-500" />,
 };
-
+const statusMap = {
+    PENDING: "Đang xác nhận",
+    PROCESSING: "Đang xử lý",
+    SHIPPING: "Đang vận chuyển",
+    DELIVERED: "Đã vận chuyển",
+    COMPLETED: "Hoàn thành",
+    CANCELLED: "Đã hủy",
+};
 const MyOrderPage = () => {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -29,7 +36,7 @@ const MyOrderPage = () => {
         navigate('/signin?redirect=/order');
         return;
       }
-      const res = await axiosInstance.get('/api/order/my');
+      const res = await axiosInstance.get('/api/order');
       const data = res.data.reverse();
       setOrders(data);
       setFilteredOrders(data);
@@ -60,83 +67,294 @@ const MyOrderPage = () => {
   }, [statusFilter, paymentFilter, orders]);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-semibold mb-6">Lịch sử mua hàng</h1>
+    <div className="min-h-screen bg-[#f8f6f2] py-8 px-4">
 
-      {/* Bộ lọc */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2"
-        >
-          <option value="">Tất cả trạng thái</option>
-          <option> đang xác nhận</option>
-          <option> đang xử lý</option>
-          <option> đang vận chuyển</option>
-          <option>Đã vận chuyển</option>
-          <option>Hoàn thành</option>
-          <option>Đã hủy</option>
-        </select>
+        <div className="max-w-5xl mx-auto">
 
-        <select
-          value={paymentFilter}
-          onChange={(e) => setPaymentFilter(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2"
-        >
-          <option value="">Tất cả thanh toán</option>
-          <option value="true">Đã thanh toán</option>
-          <option value="false">Chưa thanh toán</option>
-        </select>
-      </div>
+            {/* Header */}
+            <div className="mb-8">
+                <h1 className="text-3xl font-semibold text-[#3b3028]">
+                    Lịch sử đơn hàng
+                </h1>
 
-      {filteredOrders.length === 0 ? (
-        <p>Không có  đơn hàng phù hợp.</p>
-      ) : (
-        <div className="space-y-6">
-          {filteredOrders.map(order => (
-            <Link
-              to={`/order/${order.id}`}
-              key={order.id}
-              className="block rounded-xl border border-gray-200 shadow-md hover:shadow-lg transition-all bg-white overflow-hidden"
-            >
-              <div className="p-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Mã đơn hàng</p>
-                  <p className="text-md font-semibold text-gray-800">{order.id}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {new Date(order.createdAt).toLocaleString()}
-                  </p>
+                <p className="text-[#8b8178] mt-2">
+                    Theo dõi trạng thái các đơn hàng nội thất của bạn
+                </p>
+            </div>
+
+
+            {/* Filter */}
+            <div className="
+                bg-white
+                rounded-2xl
+                p-5
+                shadow-sm
+                border border-[#eee5dc]
+                flex
+                flex-col
+                sm:flex-row
+                gap-4
+                mb-8
+            ">
+
+                <select
+                    value={statusFilter}
+                    onChange={(e)=>setStatusFilter(e.target.value)}
+                    className="
+                        flex-1
+                        border
+                        border-[#ddd0c2]
+                        rounded-xl
+                        px-4
+                        py-3
+                        text-[#5c4033]
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-[#c8a97e]
+                    "
+                >
+                    <option value="">
+                        Tất cả trạng thái
+                    </option>
+                    <option value="PENDING">
+                        Đang xác nhận
+                    </option>
+                    <option value="PROCESSING">
+                        Đang xử lý
+                    </option>
+                    <option value="SHIPPING">
+                        Đang vận chuyển
+                    </option>
+                    <option value="COMPLETED">
+                        Hoàn thành
+                    </option>
+                    <option value="CANCELLED">
+                        Đã hủy
+                    </option>
+
+                </select>
+
+
+                <select
+                    value={paymentFilter}
+                    onChange={(e)=>setPaymentFilter(e.target.value)}
+                    className="
+                        flex-1
+                        border
+                        border-[#ddd0c2]
+                        rounded-xl
+                        px-4
+                        py-3
+                        text-[#5c4033]
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-[#c8a97e]
+                    "
+                >
+
+                    <option value="">
+                        Tất cả thanh toán
+                    </option>
+
+                    <option value="true">
+                        Đã thanh toán
+                    </option>
+
+                    <option value="false">
+                        Chưa thanh toán
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            {filteredOrders.length === 0 ? (
+
+                <div className="
+                    bg-white
+                    rounded-2xl
+                    p-10
+                    text-center
+                    border
+                    border-[#eee5dc]
+                ">
+                    <p className="text-[#8b8178]">
+                        Không có đơn hàng phù hợp
+                    </p>
                 </div>
 
-                <div className="flex flex-col gap-2 mt-3 sm:mt-0">
-                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold
-                    ${order.status === 'Hoàn thành' ? 'bg-green-100 text-green-700'
-                      : order.status === 'Đã hủy' ? 'bg-red-100 text-red-700'
-                      : 'bg-gray-100 text-gray-600'}`}>
-                    {statusIcons[order.status] || <Clock size={16} />}
-                    <span>{order.status}</span>
-                  </div>
+            ) : (
 
-                  <div className={`inline-block px-3 py-1 rounded-full text-center   text-xs font-semibold bg-green-100 text-green-700
-                    ${order.isPaid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {order.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
-                  </div>
+                <div className="space-y-6">
+
+                    {filteredOrders.map(order => (
+
+                        <Link
+                            key={order.id}
+                            to={`/order/${order.id}`}
+                            className="
+                                block
+                                bg-white
+                                rounded-2xl
+                                overflow-hidden
+                                border
+                                border-[#eee5dc]
+                                shadow-sm
+                                hover:shadow-lg
+                                transition
+                            "
+                        >
+
+                            <div className="
+                                p-6
+                                flex
+                                flex-col
+                                sm:flex-row
+                                justify-between
+                                gap-5
+                            ">
+
+
+                                {/* Order info */}
+                                <div>
+
+                                    <p className="
+                                        text-sm
+                                        text-[#9a8174]
+                                    ">
+                                        Mã đơn hàng
+                                    </p>
+
+                                    <p className="
+                                        text-xl
+                                        font-semibold
+                                        text-[#3b3028]
+                                    ">
+                                        #{order.id}
+                                    </p>
+
+
+                                    <p className="
+                                        text-sm
+                                        text-[#8b8178]
+                                        mt-2
+                                    ">
+                                        {new Date(
+                                            order.creatAt
+                                        ).toLocaleString()}
+                                    </p>
+
+                                </div>
+
+
+
+                                {/* Status */}
+                                <div className="flex flex-col gap-3">
+
+
+                                    <div className="
+                                        flex
+                                        items-center
+                                        gap-2
+                                        px-4
+                                        py-2
+                                        rounded-full
+                                        bg-[#f5eee7]
+                                        text-[#8b5e3c]
+                                        font-medium
+                                    ">
+
+                                        {statusIcons[order.status] 
+                                            || <Clock size={16}/>
+                                        }
+
+                                        <span>
+                                            {statusMap[order.status]
+                                                || order.status}
+                                        </span>
+
+                                    </div>
+
+
+
+                                    <div className={`
+                                        px-4
+                                        py-2
+                                        rounded-full
+                                        text-center
+                                        font-medium
+                                        ${
+                                            order.isPaid
+                                            ?
+                                            "bg-[#e7f1e8] text-[#567a58]"
+                                            :
+                                            "bg-[#f7ebe6] text-[#a45a3a]"
+                                        }
+                                    `}>
+
+                                        {
+                                            order.isPaid
+                                            ?
+                                            "Đã thanh toán"
+                                            :
+                                            "Chưa thanh toán"
+                                        }
+
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+
+
+                            {/* Footer */}
+                            <div className="
+                                bg-[#faf7f3]
+                                border-t
+                                border-[#eee5dc]
+                                px-6
+                                py-4
+                                flex
+                                justify-between
+                                items-center
+                            ">
+
+                                <span className="
+                                    text-[#6d625a]
+                                ">
+                                    Tổng tiền
+                                </span>
+
+
+                                <span className="
+                                    text-xl
+                                    font-bold
+                                    text-[#8b5e3c]
+                                ">
+                                    {order.totalAmount.toLocaleString()}
+                                    {" "}đ
+                                </span>
+
+
+                            </div>
+
+
+                        </Link>
+
+                    ))}
+
                 </div>
-              </div>
 
-              <div className="bg-gray-50 border-t px-4 py-3 flex justify-between items-center">
-                <span className="text-sm text-gray-600 font-medium">Tổng tiền:</span>
-                <span className="text-lg text-red-600 font-bold">
-                  {order.totalAmount.toLocaleString()} đ
-                </span>
-              </div>
-            </Link>
-          ))}
+            )}
+
         </div>
-      )}
+
     </div>
-  );
+);
 };
 
 export default MyOrderPage;

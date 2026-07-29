@@ -7,10 +7,11 @@ import {
   Settings,
   LogOut,
   NotepadText,
-  ChevronDown
+  ChevronDown,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { useState, useEffect } from "react";
+import axiosInstance from "../../utils/axios";
 
 const Header = () => {
   const user = JSON.parse(sessionStorage.getItem("user"));
@@ -18,15 +19,37 @@ const Header = () => {
   const [cartQuantity, setCartQuantity] = useState(0);
 
   useEffect(() => {
-    const updateQuantity = () => {
-      const quantity = JSON.parse(localStorage.getItem("cartQuantity")) || 0;
-      setCartQuantity(quantity);
+    const updateQuantity = async () => {
+        const token = sessionStorage.getItem("token");
+
+        if (token) {
+            try {
+                const res = await axiosInstance.get("/api/cart");
+                const items = res.data.items || [];
+
+                setCartQuantity(
+                    items.reduce((sum, item) => sum + item.quantity, 0)
+                );
+            } catch (err) {
+                console.error(err);
+                setCartQuantity(0);
+            }
+        } else {
+            const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+            setCartQuantity(
+                cart.reduce((sum, item) => sum + item.quantity, 0)
+            );
+        }
     };
 
-    updateQuantity(); // load khi mount
+    updateQuantity();
+
     window.addEventListener("cartUpdated", updateQuantity);
-    return () => window.removeEventListener("cartUpdated", updateQuantity);
-  }, []);
+
+    return () =>
+        window.removeEventListener("cartUpdated", updateQuantity);
+}, []);
 
   // Xử lý đăng xuất
   const handleLogout = async () => {
@@ -50,7 +73,6 @@ const Header = () => {
       sessionStorage.clear();
       window.location.href = "/";
     }
-    localStorage.removeItem("cartQuantity");
   };
 
   return (
@@ -240,8 +262,8 @@ transition
               onMouseLeave={() => setDropdownOpen(false)}
             >
               <button
-    onClick={() => setDropdownOpen(!dropdownOpen)}
-    className="
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="
         flex
         items-center
         gap-3
@@ -253,13 +275,12 @@ transition
         duration-300
         group
     "
->
+              >
                 <div className="relative">
-
-    <img
-        src="/website/male_avatar.png"
-        alt="Avatar"
-        className="
+                  <img
+                    src="/website/male_avatar.png"
+                    alt="Avatar"
+                    className="
             w-11
             h-11
             rounded-full
@@ -269,10 +290,10 @@ transition
             group-hover:border-[#8B5E3C]
             transition
         "
-    />
+                  />
 
-    <span
-        className="
+                  <span
+                    className="
             absolute
             bottom-0
             right-0
@@ -283,57 +304,52 @@ transition
             border-2
             border-[#F5F1EB]
         "
-    />
-
-</div>
+                  />
+                </div>
 
                 <div
-className="
+                  className="
 hidden
 lg:flex
 flex-col
 text-left
 "
->
+                >
                   <p
-className="
+                    className="
 font-semibold
 text-sm
 text-[#1F2937]
 group-hover:text-[#8B5E3C]
 transition
 "
->
-    {user.name}
-</p>
+                  >
+                    {user.name}
+                  </p>
 
                   <p
-className="
+                    className="
 text-xs
 text-[#8B5E3C]
 "
->
-    {user.role === "ADMIN" ? "Quản trị viên" : "Khách hàng"}
-</p>
+                  >
+                    {user.role === "ADMIN" ? "Quản trị viên" : "Khách hàng"}
+                  </p>
                 </div>
                 <ChevronDown
-    size={16}
-    className={`
+                  size={16}
+                  className={`
         text-[#8B5E3C]
         transition-transform
         duration-300
-        ${
-            dropdownOpen 
-            ? "rotate-180"
-            : ""
-        }
+        ${dropdownOpen ? "rotate-180" : ""}
     `}
-/>
+                />
               </button>
 
               {/* Dropdown Menu */}
-<div
-    className={`
+              <div
+                className={`
         absolute
         right-0
         top-full
@@ -348,15 +364,15 @@ text-[#8B5E3C]
         transition-all
         duration-200
         ${
-            dropdownOpen
-                ? "opacity-100 translate-y-0 visible"
-                : "opacity-0 -translate-y-2 invisible"
+          dropdownOpen
+            ? "opacity-100 translate-y-0 visible"
+            : "opacity-0 -translate-y-2 invisible"
         }
     `}
->
-    <Link
-        to="/profile"
-        className="
+              >
+                <Link
+                  to="/profile"
+                  className="
             flex
             items-center
             gap-3
@@ -366,15 +382,14 @@ text-[#8B5E3C]
             hover:bg-white/60
             transition
         "
-    >
-        <User size={18} className="text-[#8B5E3C]" />
-        Tài khoản
-    </Link>
+                >
+                  <User size={18} className="text-[#8B5E3C]" />
+                  Tài khoản
+                </Link>
 
-
-    <Link
-        to="/order"
-        className="
+                <Link
+                  to="/order"
+                  className="
             flex
             items-center
             gap-3
@@ -384,15 +399,14 @@ text-[#8B5E3C]
             hover:bg-white/60
             transition
         "
-    >
-        <NotepadText size={18} className="text-[#8B5E3C]" />
-        Lịch sử đơn hàng
-    </Link>
+                >
+                  <NotepadText size={18} className="text-[#8B5E3C]" />
+                  Lịch sử đơn hàng
+                </Link>
 
-
-    <Link
-        to="/profile/address"
-        className="
+                <Link
+                  to="/profile/address"
+                  className="
             flex
             items-center
             gap-3
@@ -402,16 +416,15 @@ text-[#8B5E3C]
             hover:bg-white/60
             transition
         "
-    >
-        <House size={18} className="text-[#8B5E3C]" />
-        Địa chỉ giao hàng
-    </Link>
+                >
+                  <House size={18} className="text-[#8B5E3C]" />
+                  Địa chỉ giao hàng
+                </Link>
 
-
-    {user.role === "ADMIN" && (
-        <Link
-            to="/admin"
-            className="
+                {user.role === "ADMIN" && (
+                  <Link
+                    to="/admin"
+                    className="
                 flex
                 items-center
                 gap-3
@@ -423,19 +436,17 @@ text-[#8B5E3C]
                 font-semibold
                 transition
             "
-        >
-            <Settings size={18} />
-            Trang quản trị
-        </Link>
-    )}
+                  >
+                    <Settings size={18} />
+                    Trang quản trị
+                  </Link>
+                )}
 
+                <div className="border-t border-[#8B5E3C]/10" />
 
-    <div className="border-t border-[#8B5E3C]/10" />
-
-
-    <button
-        onClick={handleLogout}
-        className="
+                <button
+                  onClick={handleLogout}
+                  className="
             w-full
             flex
             items-center
@@ -447,12 +458,11 @@ text-[#8B5E3C]
             transition
             font-medium
         "
-    >
-        <LogOut size={18} />
-        Đăng xuất
-    </button>
-
-</div>
+                >
+                  <LogOut size={18} />
+                  Đăng xuất
+                </button>
+              </div>
             </div>
           )}
         </div>

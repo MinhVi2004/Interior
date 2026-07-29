@@ -115,21 +115,76 @@ public class ProductController {
 		Product product = new Product();
 		applyProductRequest(product, request);
 		product = productRepository.save(product);
+
 		saveImages(product, images);
+
+		updateThumbnail(product);
+
 		return toDto(productRepository.findById(product.getId()).orElseThrow());
 	}
+	private void updateThumbnail(Product product) {
 
+		if (product.getThumbnail() == null || product.getThumbnail().isBlank()) {
+
+			List<ProductImage> images =
+					productImageRepository.findByProductId(product.getId());
+
+			if (!images.isEmpty()) {
+				product.setThumbnail(images.get(0).getUrl());
+				productRepository.save(product);
+			}
+		}
+	}
+	private void updateImages(
+			Product product,
+			List<String> keepOldImages,
+			MultipartFile[] newImages
+	) {
+
+		List<ProductImage> existing =
+				productImageRepository.findByProductId(product.getId());
+
+
+		// Xóa ảnh cũ không còn giữ
+		existing.stream()
+				.filter(image ->
+						keepOldImages == null ||
+								!keepOldImages.contains(image.getUrl())
+				)
+				.forEach(image -> {
+					cloudinaryService.delete(image.getPublicId());
+					productImageRepository.delete(image);
+				});
+
+
+		// Thêm ảnh mới
+		saveImages(product, newImages);
+	}
 	@PutMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	@Transactional
-	public ProductDto update(@PathVariable Long id, @Valid @RequestPart("data") ProductUpsertRequest request, @RequestPart(value = "images", required = false) MultipartFile[] images) {
-		Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+	public ProductDto update(
+			@PathVariable Long id,
+			@Valid @RequestPart("data") ProductUpsertRequest request,
+			@RequestPart(value = "images", required = false) MultipartFile[] images
+	) {
+
+		Product product = productRepository.findById(id)
+				.orElseThrow();
+
 		applyProductRequest(product, request);
-		product = productRepository.save(product);
-		if (images != null && images.length > 0) {
-			replaceImages(product, images);
-		}
-		return toDto(productRepository.findById(id).orElseThrow());
+
+		productRepository.save(product);
+
+		updateImages(
+				product,
+				request.keepOldImages(),
+				images
+		);
+
+		updateThumbnail(product);
+
+		return toDto(product);
 	}
 
 	@GetMapping
@@ -182,22 +237,36 @@ public class ProductController {
 	}
 
 	private void saveImages(Product product, MultipartFile[] images) {
+
 		if (images == null) {
 			return;
 		}
+
 		for (MultipartFile file : images) {
+
 			if (file == null || file.isEmpty()) {
 				continue;
 			}
+
 			var uploaded = cloudinaryService.upload(file, "products");
+
 			ProductImage productImage = new ProductImage();
 			productImage.setProduct(product);
 			productImage.setUrl(uploaded.url());
 			productImage.setPublicId(uploaded.publicId());
+
 			productImageRepository.save(productImage);
+
+
+			// set thumbnail nếu chưa có
+			if (product.getThumbnail() == null ||
+					product.getThumbnail().isBlank()) {
+
+				product.setThumbnail(uploaded.url());
+				productRepository.save(product);
+			}
 		}
 	}
-
 	private void replaceImages(Product product, MultipartFile[] images) {
 		List<ProductImage> existing = productImageRepository.findByProductId(product.getId());
 		existing.forEach(image -> cloudinaryService.delete(image.getPublicId()));

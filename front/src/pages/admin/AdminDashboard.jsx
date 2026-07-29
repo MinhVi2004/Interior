@@ -259,7 +259,7 @@ const AdminDashboard = () => {
                             >
 
                                 <td className="px-4 py-4 font-semibold text-[#8B5E3C]">
-                                    {order.id.toUpperCase()}
+                                    {order.id}
                                 </td>
 
                                 <td className="px-4 py-4 text-center">
