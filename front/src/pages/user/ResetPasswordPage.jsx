@@ -18,7 +18,7 @@ const ResetPassword = () => {
     }
 
     try {
-      await axiosInstance.post(`/api/forget/reset-password/${token}`, {
+      await axiosInstance.post(`/api/users/auth/reset-password/${token}`, {
         password,
       });
       toast.success(" đổi mật khẩu thành công!");

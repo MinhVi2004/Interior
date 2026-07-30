@@ -9,7 +9,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 createRoot(document.getElementById('root')).render(
     <StrictMode>
         <BrowserRouter>
-            <GoogleOAuthProvider clientId="573651962597-ghjrdckat3mquhrn5lufsevduduk2nlh.apps.googleusercontent.com">
+            <GoogleOAuthProvider clientId="339327881184-5b9re7d768f7mt2jtluno7c4rbpcfljp.apps.googleusercontent.com">
                     <App />
             </GoogleOAuthProvider>
         </BrowserRouter>

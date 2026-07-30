@@ -5,6 +5,8 @@ import com.example.interior.dto.request.SigninRequest;
 import com.example.interior.dto.request.SignupRequest;
 import com.example.interior.dto.request.SocialSigninRequest;
 import com.example.interior.dto.response.AuthResponse;
+import com.example.interior.dto.response.FacebookUserResponse;
+import com.example.interior.dto.response.GoogleUserResponse;
 import com.example.interior.dto.response.MessageResponse;
 import com.example.interior.enums.LoginType;
 import com.example.interior.enums.Role;
@@ -17,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-
+import com.example.interior.service.FacebookService;
 @Service
 public class AuthService {
 
@@ -25,14 +27,24 @@ public class AuthService {
 	private final CartRepository cartRepository;
 	private final JwtService jwtService;
 	private final PasswordEncoder passwordEncoder;
+	private final FacebookService facebookService;
+	private final GoogleService googleService;
 
-	public AuthService(UserRepository userRepository, CartRepository cartRepository, JwtService jwtService, PasswordEncoder passwordEncoder) {
+	public AuthService(
+			UserRepository userRepository,
+			CartRepository cartRepository,
+			JwtService jwtService,
+			PasswordEncoder passwordEncoder,
+			FacebookService facebookService,
+			GoogleService googleService) {
+
 		this.userRepository = userRepository;
 		this.cartRepository = cartRepository;
 		this.jwtService = jwtService;
 		this.passwordEncoder = passwordEncoder;
+		this.facebookService = facebookService;
+		this.googleService = googleService;
 	}
-
 	public AuthResponse signup(SignupRequest request) {
 		if (userRepository.findByEmail(request.email()) != null) {
 			throw new IllegalArgumentException("Email already exists");
@@ -59,26 +71,82 @@ public class AuthService {
 		return new AuthResponse(jwtService.generateToken(user), UserResponseMapper.toPublic(user));
 	}
 
-	public AuthResponse signinBySocial(SocialSigninRequest request, LoginType type) {
-		User user = userRepository.findByEmail(request.email());
+	public AuthResponse signinByGoogle(String accessToken) {
+
+		GoogleUserResponse googleUser = googleService.getUser(accessToken);
+
+		if (googleUser == null
+				|| googleUser.getEmail() == null
+				|| !Boolean.TRUE.equals(googleUser.getEmail_verified())) {
+			throw new IllegalArgumentException("Google token không hợp lệ");
+		}
+
+		User user = userRepository.findByEmail(googleUser.getEmail());
+
 		if (user == null) {
 			user = new User();
-			user.setName(request.name());
-			user.setEmail(request.email());
+			user.setName(googleUser.getName());
+			user.setEmail(googleUser.getEmail());
 			user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 			user.setRole(Role.USER);
-			user.setType(type);
+			user.setType(LoginType.GOOGLE);
 			user.setIsVerified(true);
 			user.setStatus(true);
+
 			user = userRepository.save(user);
 			createCartIfMissing(user);
+
 		} else {
-			user.setName(request.name());
-			user.setType(type);
+
+			user.setName(googleUser.getName());
+			user.setType(LoginType.GOOGLE);
 			user.setIsVerified(true);
+
 			user = userRepository.save(user);
 		}
-		return new AuthResponse(jwtService.generateToken(user), UserResponseMapper.toPublic(user));
+
+		return new AuthResponse(
+				jwtService.generateToken(user),
+				UserResponseMapper.toPublic(user)
+		);
+	}
+	public AuthResponse signinByFacebook(String accessToken) {
+
+		FacebookUserResponse fbUser = facebookService.getUser(accessToken);
+
+		if (fbUser == null || fbUser.getEmail() == null) {
+			throw new IllegalArgumentException("Facebook token không hợp lệ");
+		}
+
+		User user = userRepository.findByEmail(fbUser.getEmail());
+
+		if (user == null) {
+
+			user = new User();
+			user.setName(fbUser.getName());
+			user.setEmail(fbUser.getEmail());
+			user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+			user.setRole(Role.USER);
+			user.setType(LoginType.FACEBOOK);
+			user.setIsVerified(true);
+			user.setStatus(true);
+
+			user = userRepository.save(user);
+			createCartIfMissing(user);
+
+		} else {
+
+			user.setName(fbUser.getName());
+			user.setType(LoginType.FACEBOOK);
+			user.setIsVerified(true);
+
+			user = userRepository.save(user);
+		}
+
+		return new AuthResponse(
+				jwtService.generateToken(user),
+				UserResponseMapper.toPublic(user)
+		);
 	}
 
 	public MessageResponse verifyEmail(String token) {

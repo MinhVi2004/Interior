@@ -37,7 +37,7 @@ const ChangePasswordPage = () => {
 
         try {
             const result = await axiosInstance.put(
-                '/api/user/change-password',
+                '/api/users/auth/change-password',
                 {
                     oldPassword,
                     newPassword,

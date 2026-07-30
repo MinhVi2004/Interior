@@ -78,14 +78,14 @@ const SignupPage = () => {
         try {
             setLoading(true);
 
-            const res = await axios.post(`${BACKEND_URL}/api/user/signup`, {
+            const res = await axios.post(`${BACKEND_URL}/api/users/auth/signup`, {
                 name,
                 email,
                 password,
                 redirect, // cần định nghĩa redirect trước
             });
 
-            toast.success(' đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.');
+            toast.success('Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.');
 
             setFormData({ name: '', email: '', password: '', confirmPassword: '' });
 

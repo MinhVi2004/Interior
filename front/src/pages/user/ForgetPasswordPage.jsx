@@ -10,7 +10,7 @@ const ForgotPassword = () => {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      await axiosInstance.post("/api/forget/send", { email });
+      await axiosInstance.post("/api/users/auth/send", { email });
       toast.success("Đã gửi email khôi phục mật khẩu. Hãy kiểm tra hộp thư!");
     } catch (err) {
       toast.error(err.response?.data?.message || "Lỗi xảy ra!");

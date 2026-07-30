@@ -41,6 +41,7 @@ const MyOrderPage = () => {
       setOrders(data);
       setFilteredOrders(data);
     } catch (err) {
+        console.error(err);
       toast.error('Không thể tải lịch sử đơn hàng');
     }
   };

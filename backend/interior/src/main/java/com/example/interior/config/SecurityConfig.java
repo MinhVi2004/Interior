@@ -33,7 +33,19 @@ public class SecurityConfig {
 						.requestMatchers(
 								"/swagger-ui/**",
 								"/swagger-ui.html",
-								"/v3/api-docs/**","/api/users/signup", "/api/users/signin", "/api/users/signinByGoogle", "/api/users/signinByFacebook", "/api/users/verify-email", "/api/auth/send", "/api/auth/reset-password/**", "/api/email", "/api/order/vnpay_ipn").permitAll()
+								"/v3/api-docs/**",
+
+								"/api/users/auth/signup",
+								"/api/users/auth/signin",
+								"/api/users/auth/signinByGoogle",
+								"/api/users/auth/signinByFacebook",
+								"/api/users/auth/verify-email",
+								"/api/users/auth/send",
+								"/api/users/auth/reset-password/**",
+
+								"/api/email",
+								"/api/order/vnpay_ipn"
+						).permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/product/**", "/api/category/**", "/api/banner/**", "/api/users/**").permitAll()
 						.requestMatchers("/api/users", "/api/users/*/promote", "/api/users/*/block", "/api/product/**", "/api/order/admin/**", "/api/staff/**").hasAnyRole("ADMIN", "STAFF")
 						.anyRequest().authenticated())

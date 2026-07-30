@@ -1,10 +1,6 @@
 package com.example.interior.controller;
 
-import com.example.interior.dto.request.ChangePasswordRequest;
-import com.example.interior.dto.request.ResetPasswordRequest;
-import com.example.interior.dto.request.SigninRequest;
-import com.example.interior.dto.request.SignupRequest;
-import com.example.interior.dto.request.SocialSigninRequest;
+import com.example.interior.dto.request.*;
 import com.example.interior.dto.response.AuthResponse;
 import com.example.interior.dto.response.MessageResponse;
 import com.example.interior.entity.User;
@@ -12,6 +8,7 @@ import com.example.interior.enums.LoginType;
 import com.example.interior.repository.UserRepository;
 import com.example.interior.service.AuthService;
 import com.example.interior.service.EmailService;
+import com.example.interior.service.GoogleService;
 import com.example.interior.service.support.CurrentUserService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -24,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping({"/api/users"})
+@RequestMapping({"/api/users/auth/"})
 public class AuthController {
 
 	private final AuthService authService;
@@ -50,13 +47,17 @@ public class AuthController {
 	}
 
 	@PostMapping("/signinByGoogle")
-	public AuthResponse signinByGoogle(@Valid @RequestBody SocialSigninRequest request) {
-		return authService.signinBySocial(request, LoginType.GOOGLE);
+	public AuthResponse signinByGoogle(
+			@RequestBody GoogleSigninRequest request) {
+
+		return authService.signinByGoogle(request.accessToken());
 	}
 
 	@PostMapping("/signinByFacebook")
-	public AuthResponse signinByFacebook(@Valid @RequestBody SocialSigninRequest request) {
-		return authService.signinBySocial(request, LoginType.FACEBOOK);
+	public AuthResponse signinByFacebook(
+			@RequestBody FacebookSigninRequest request) {
+
+		return authService.signinByFacebook(request.accessToken());
 	}
 
 	@GetMapping("/verify-email")
