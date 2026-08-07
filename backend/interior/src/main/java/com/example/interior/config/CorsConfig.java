@@ -19,7 +19,8 @@ public class CorsConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://127.0.0.1:3000",
-                "http://localhost:5173" // nếu dùng Vite mặc định
+                "http://localhost:5173",
+                "https://interiorpdd.vercel.app/"
         ));
 
         config.setAllowedMethods(List.of(
