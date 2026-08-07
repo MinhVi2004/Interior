@@ -11,7 +11,7 @@ const UserLayout = () => {
         <Outlet />
       </main>
       <Footer />
-      <Chatbot />
+      {/* <Chatbot /> */}
     </div>
   );
 };

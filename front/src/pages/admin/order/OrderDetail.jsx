@@ -9,85 +9,92 @@ const OrderDetail = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
-  const statusMap = {
-    "Đang xác nhận": "CONFIRMED",
-    "Đang xử lý": "PACKING",
-    "Đang vận chuyển": "SHIPPING",
-    "Đã vận chuyển": "DELIVERED",
-    "Hoàn thành": "DELIVERED",
-    "Đã hủy": "CANCELLED",
-  };
 
-  const reverseStatusMap = {
-    PENDING: "Đang xác nhận",
-    CONFIRMED: "Đang xác nhận",
-    PACKING: "Đang xử lý",
+  const statusLabel = {
+    PENDING: "Chờ xác nhận",
+    CONFIRMED: "Đã xác nhận",
+    PACKING: "Đang đóng gói",
     SHIPPING: "Đang vận chuyển",
-    DELIVERED: "Đã vận chuyển",
-    CANCELLED: "Đã hủy",
+    DELIVERED: "Đã giao hàng",
     REFUNDED: "Đã hoàn tiền",
-  };
-  const statuses = [
-    "Đang xác nhận",
-    "Đang xử lý",
-    "Đang vận chuyển",
-    "Đã vận chuyển",
-    "Hoàn thành",
-    "Đã hủy",
+    CANCELLED: "Đã hủy",
+};
+
+const statuses = [
+    "PENDING",
+    "CONFIRMED",
+    "PACKING",
+    "SHIPPING",
+    "DELIVERED",
+    "REFUNDED",
+    "CANCELLED",
 ];
-  const getStatusColorClass = (status) => {
+
+const getStatusColorClass = (status) => {
     switch (status) {
-      case "Đang xác nhận":
-        return "text-yellow-600 bg-yellow-50";
-      case "Đang xử lý":
-        return "text-purple-600 bg-purple-50";
-      case "Đang vận chuyển":
-        return "text-blue-600 bg-blue-50";
-      case "Đã vận chuyển":
-        return "text-indigo-600 bg-indigo-50";
-      case "Hoàn thành":
-        return "text-green-600 bg-green-50";
-      case "Đã hủy":
-        return "text-red-600 bg-red-50";
-      default:
-        return "text-gray-700 bg-gray-50";
+        case "PENDING":
+            return "text-yellow-600 bg-yellow-50";
+
+        case "CONFIRMED":
+            return "text-blue-600 bg-blue-50";
+
+        case "PACKING":
+            return "text-purple-600 bg-purple-50";
+
+        case "SHIPPING":
+            return "text-indigo-600 bg-indigo-50";
+
+        case "DELIVERED":
+            return "text-green-600 bg-green-50";
+
+        case "REFUNDED":
+            return "text-orange-600 bg-orange-50";
+
+        case "CANCELLED":
+            return "text-red-600 bg-red-50";
+
+        default:
+            return "text-gray-700 bg-gray-50";
     }
-  };
+};
 
   useEffect(() => {
     const fetchOrder = async () => {
-      setLoading(true);
-      try {
-        const res = await axiosInstance.get(`api/order/${id}`);
-        setOrder(res.data);
-        setStatus(reverseStatusMap[res.data.status]);
-      } catch (err) {
-        console.error("Lỗi khi lấy đơn hàng:", err.message);
-      } finally {
-        setLoading(false);
-      }
+        setLoading(true);
+
+        try {
+            const res = await axiosInstance.get(`api/order/${id}`);
+
+            setOrder(res.data);
+            setStatus(res.data.status);
+        } catch (err) {
+            console.error("Lỗi khi lấy đơn hàng:", err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     fetchOrder();
-  }, [id]);
+}, [id]);
 
   const handleUpdateStatus = async () => {
     if (status === order.status) {
-      toast.error("Bạn chưa thay đổi trạng thái đơn hàng.");
-      return;
+        toast.error("Bạn chưa thay đổi trạng thái đơn hàng.");
+        return;
     }
 
     try {
-      await axiosInstance.put(`api/order/admin/status/${id}`, {
-        status: statusMap[status],
-      });
-      toast.success("Cập nhật trạng thái thành công!");
-      navigate("/admin/order");
+        await axiosInstance.put(`api/order/admin/status/${id}`, {
+            status: status,
+        });
+
+        toast.success("Cập nhật trạng thái thành công!");
+        navigate("/admin/order");
     } catch (err) {
-      toast.error("Cập nhật thất bại.");
-      console.error(err);
+        toast.error("Cập nhật thất bại.");
+        console.error(err);
     }
-  };
+};
 
   if (loading) return <p className="p-6">Đang tải chi tiết đơn hàng...</p>;
   if (!order) return <p className="p-6">Không tìm thấy đơn hàng.</p>;
@@ -134,16 +141,16 @@ const OrderDetail = () => {
         <div className="flex items-center gap-2">
           <label className="font-medium">Trạng thái đơn hàng:</label>
           <select
-            className={`border px-3 py-1 rounded font-semibold transition ${getStatusColorClass(status)}`}
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            {statuses.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+    className={`border px-3 py-1 rounded font-semibold transition ${getStatusColorClass(status)}`}
+    value={status}
+    onChange={(e) => setStatus(e.target.value)}
+>
+    {statuses.map((s) => (
+        <option key={s} value={s}>
+            {statusLabel[s]}
+        </option>
+    ))}
+</select>
         </div>
         <div className="flex gap-2">
           <strong>Trạng thái thanh toán: </strong>

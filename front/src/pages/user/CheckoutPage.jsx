@@ -739,7 +739,7 @@ const CheckoutPage = () => {
                         </div>
                     </label>
 
-                    <label
+                    {/* <label
                         className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition
                         ${
                             paymentMethod === "vnpay"
@@ -763,7 +763,7 @@ const CheckoutPage = () => {
                                 Thanh toán trực tuyến
                             </span>
                         </div>
-                    </label>
+                    </label> */}
 
                 </div>
 

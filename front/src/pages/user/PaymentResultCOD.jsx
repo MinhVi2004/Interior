@@ -145,7 +145,7 @@ const PaymentResultCOD = () => {
                                                 </Link>
 
                                                 <p className="text-sm text-gray-500 mt-2">
-                                                    SKU: {product.sku}
+                                                    {product.sku}
                                                 </p>
 
                                                 <p className="text-sm text-gray-500 mt-1">
@@ -241,11 +241,11 @@ const PaymentResultCOD = () => {
 
                         <div className="flex justify-between items-center">
 
-                            <span className="text-lg font-semibold">
+                            <span className="text-l font-semibold">
                                 Tổng thanh toán
                             </span>
 
-                            <span className="text-3xl font-bold text-[#8B5E3C]">
+                            <span className="text-xl font-bold text-[#8B5E3C]">
                                 {order.totalAmount.toLocaleString()} đ
                             </span>
 

@@ -11,14 +11,15 @@ const OrderPage = () => {
     const navigate = useNavigate();
 
     const statuses = [
-        { value: "ALL", label: "Tất cả" },
-        { value: "PENDING", label: "Chờ xác nhận" },
-        { value: "PROCESSING", label: "Đang xử lý" },
-        { value: "SHIPPING", label: "Đang vận chuyển" },
-        { value: "DELIVERED", label: "Đã giao hàng" },
-        { value: "COMPLETED", label: "Hoàn thành" },
-        { value: "CANCELLED", label: "Đã hủy" },
-    ];
+    { value: "ALL", label: "Tất cả" },
+    { value: "PENDING", label: "Chờ xác nhận" },
+    { value: "CONFIRMED", label: "Đã xác nhận" },
+    { value: "PACKING", label: "Đang đóng gói" },
+    { value: "SHIPPING", label: "Đang vận chuyển" },
+    { value: "DELIVERED", label: "Đã giao hàng" },
+    { value: "REFUNDED", label: "Đã hoàn tiền" },
+    { value: "CANCELLED", label: "Đã hủy" },
+];
 
 
     useEffect(() => {
@@ -54,39 +55,43 @@ const OrderPage = () => {
 
 
     const statusLabel = {
-        PENDING: "Chờ xác nhận",
-        PROCESSING: "Đang xử lý",
-        SHIPPING: "Đang vận chuyển",
-        DELIVERED: "Đã giao hàng",
-        COMPLETED: "Hoàn thành",
-        CANCELLED: "Đã hủy",
-    };
+    PENDING: "Chờ xác nhận",
+    CONFIRMED: "Đã xác nhận",
+    PACKING: "Đang đóng gói",
+    SHIPPING: "Đang vận chuyển",
+    DELIVERED: "Đã giao hàng",
+    REFUNDED: "Đã hoàn tiền",
+    CANCELLED: "Đã hủy",
+};
 
 
     const statusClass = status => {
-        switch(status) {
-            case "PENDING":
-                return "bg-yellow-100 text-yellow-700";
+    switch (status) {
+        case "PENDING":
+            return "bg-yellow-100 text-yellow-700";
 
-            case "PROCESSING":
-                return "bg-purple-100 text-purple-700";
+        case "CONFIRMED":
+            return "bg-blue-100 text-blue-700";
 
-            case "SHIPPING":
-                return "bg-blue-100 text-blue-700";
+        case "PACKING":
+            return "bg-purple-100 text-purple-700";
 
-            case "DELIVERED":
-                return "bg-indigo-100 text-indigo-700";
+        case "SHIPPING":
+            return "bg-indigo-100 text-indigo-700";
 
-            case "COMPLETED":
-                return "bg-green-100 text-green-700";
+        case "DELIVERED":
+            return "bg-green-100 text-green-700";
 
-            case "CANCELLED":
-                return "bg-red-100 text-red-700";
+        case "REFUNDED":
+            return "bg-orange-100 text-orange-700";
 
-            default:
-                return "bg-gray-100 text-gray-700";
-        }
-    };
+        case "CANCELLED":
+            return "bg-red-100 text-red-700";
+
+        default:
+            return "bg-gray-100 text-gray-700";
+    }
+};
 
 
     return (

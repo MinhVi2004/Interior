@@ -50,11 +50,8 @@ public class ProductController {
 	}
 	private ProductDetailDto toDetailDto(Product product) {
 
-		List<ProductImage> productImages = productImageRepository.findByProductId(product.getId());
-
-		String thumbnail = productImages.isEmpty()
-				? null
-				: productImages.get(0).getUrl();
+		List<ProductImage> productImages =
+				productImageRepository.findByProductId(product.getId());
 
 		List<ProductImageDto> images = productImages.stream()
 				.map(image -> new ProductImageDto(
@@ -76,11 +73,13 @@ public class ProductController {
 				product.getCategory() == null
 						? null
 						: product.getCategory().getId(),
-				thumbnail,
+				product.getThumbnail(),
 				images,
 				product.getCreatedAt()
 		);
 	}
+
+
 	@GetMapping("/sku/{sku}")
 	public ProductDetailDto findBySku(@PathVariable String sku) {
 		Product product = productRepository.findBySku(sku)
@@ -117,24 +116,11 @@ public class ProductController {
 		product = productRepository.save(product);
 
 		saveImages(product, images);
-
-		updateThumbnail(product);
+		syncThumbnail(product);
 
 		return toDto(productRepository.findById(product.getId()).orElseThrow());
 	}
-	private void updateThumbnail(Product product) {
 
-		if (product.getThumbnail() == null || product.getThumbnail().isBlank()) {
-
-			List<ProductImage> images =
-					productImageRepository.findByProductId(product.getId());
-
-			if (!images.isEmpty()) {
-				product.setThumbnail(images.get(0).getUrl());
-				productRepository.save(product);
-			}
-		}
-	}
 	private void updateImages(
 			Product product,
 			List<String> keepOldImages,
@@ -143,7 +129,6 @@ public class ProductController {
 
 		List<ProductImage> existing =
 				productImageRepository.findByProductId(product.getId());
-
 
 		// Xóa ảnh cũ không còn giữ
 		existing.stream()
@@ -156,9 +141,11 @@ public class ProductController {
 					productImageRepository.delete(image);
 				});
 
-
 		// Thêm ảnh mới
 		saveImages(product, newImages);
+
+		// Đồng bộ lại thumbnail
+		syncThumbnail(product);
 	}
 	@PutMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
@@ -170,7 +157,8 @@ public class ProductController {
 	) {
 
 		Product product = productRepository.findById(id)
-				.orElseThrow();
+				.orElseThrow(() ->
+						new IllegalArgumentException("Product not found: " + id));
 
 		applyProductRequest(product, request);
 
@@ -181,8 +169,6 @@ public class ProductController {
 				request.keepOldImages(),
 				images
 		);
-
-		updateThumbnail(product);
 
 		return toDto(product);
 	}
@@ -223,6 +209,34 @@ public class ProductController {
 		productRepository.deleteById(id);
 	}
 
+	private void syncThumbnail(Product product) {
+
+		List<ProductImage> images =
+				productImageRepository.findByProductId(product.getId());
+
+		// Không còn ảnh
+		if (images.isEmpty()) {
+			product.setThumbnail(null);
+			productRepository.save(product);
+			return;
+		}
+
+		// Kiểm tra thumbnail hiện tại còn tồn tại không
+		boolean currentThumbnailExists = images.stream()
+				.anyMatch(image ->
+						image.getUrl().equals(product.getThumbnail())
+				);
+
+		// Nếu thumbnail hiện tại vẫn còn thì giữ nguyên
+		if (currentThumbnailExists) {
+			return;
+		}
+
+		// Thumbnail cũ không còn -> lấy ảnh đầu tiên
+		product.setThumbnail(images.get(0).getUrl());
+		productRepository.save(product);
+	}
+
 	private void applyProductRequest(Product product, ProductUpsertRequest request) {
 		if (product.getSku() == null || product.getSku().isBlank()) {
 			product.setSku(generateSku(request.name()));
@@ -256,31 +270,13 @@ public class ProductController {
 			productImage.setPublicId(uploaded.publicId());
 
 			productImageRepository.save(productImage);
-
-
-			// set thumbnail nếu chưa có
-			if (product.getThumbnail() == null ||
-					product.getThumbnail().isBlank()) {
-
-				product.setThumbnail(uploaded.url());
-				productRepository.save(product);
-			}
 		}
-	}
-	private void replaceImages(Product product, MultipartFile[] images) {
-		List<ProductImage> existing = productImageRepository.findByProductId(product.getId());
-		existing.forEach(image -> cloudinaryService.delete(image.getPublicId()));
-		productImageRepository.deleteAll(existing);
-		saveImages(product, images);
 	}
 
 	private ProductDto toDto(Product product) {
 
-		List<ProductImage> productImages = productImageRepository.findByProductId(product.getId());
-
-		String thumbnail = productImages.isEmpty()
-				? null
-				: productImages.get(0).getUrl();
+		List<ProductImage> productImages =
+				productImageRepository.findByProductId(product.getId());
 
 		List<ProductImageDto> images = productImages.stream()
 				.map(image -> new ProductImageDto(
@@ -302,7 +298,7 @@ public class ProductController {
 				product.getCategory() == null
 						? null
 						: product.getCategory().getId(),
-				thumbnail,
+				product.getThumbnail(),
 				product.getCreatedAt()
 		);
 	}
